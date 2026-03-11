@@ -1,0 +1,44 @@
+:root{
+    --bright:#eeedec;
+}
+
+body{
+    min-height: 100vh;
+    width: 100vw;
+}
+#layout{
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;    
+}
+nav *{
+    display: block;
+    color: var(--bright);
+
+} 
+
+nav{
+    display: flex;
+    justify-content: baseline;
+    align-items: center;
+    padding: 20px;
+    font-size: 1.5rem;
+    gap: 20px;
+}
+
+nav, footer{
+    color: var(--bright);
+    width: 100%;
+    background-color: rgb(49, 49, 177);
+}
+
+footer{
+    position: relative;
+    bottom: 0;
+    text-align: center;
+    font-size: 1.2rem;
+}
