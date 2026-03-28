@@ -1,3 +1,6 @@
 node_modules/
 state.txt
 test_values.txt
+*.exe
+frontend/README.md
+package-lock.json

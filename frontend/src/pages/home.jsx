@@ -1,3 +1,4 @@
+import React from "react";
 const BOARD_SIZE = 3;
 const BOARD_SIZE_2 = BOARD_SIZE * BOARD_SIZE;
 
@@ -115,7 +116,7 @@ function Sudoku(propos){
     return render();
 }
 
-function Main(propos){
+export default function Main(propos){
     const [state, setState] = React.useState("")
     const [errorMsg, setErrorMsg] = React.useState("");
     const solve = ()=>{
@@ -150,9 +151,7 @@ function Main(propos){
                             setState(e.target.value);
                         }}
                     /> */}
-                    {
-                        propos.type=="solver"? (<button className="solve_button" onClick={solve}>SOLVE</button>) : <></>
-                    }
+                    <button className="solve_button" onClick={solve}>SOLVE</button>
                 </div>
             </>
         )
@@ -160,7 +159,3 @@ function Main(propos){
     return render();
 }
 
-ReactDOM.render(
-    <Main type="solver"/>,
-    document.querySelector('#react_condom')
-)
