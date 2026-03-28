@@ -1,6 +1,8 @@
 const BOARD_SIZE = 3;
 const BOARD_SIZE_2 = BOARD_SIZE * BOARD_SIZE;
 
+
+
 function Sudoku(propos){
     let state = propos.state;
     const setState = propos.setState;
