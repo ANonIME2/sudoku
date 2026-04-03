@@ -1,6 +1,8 @@
 node_modules/
-state.txt
-test_values.txt
+algorithms/*.txt
 *.exe
 frontend/README.md
 package-lock.json
+.vscode
+.vscode/
+.vscode/*

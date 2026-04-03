@@ -5,7 +5,7 @@ export default function Layout(){
       <div id="layout">
           <nav>
               <a href="/">play</a> |
-              <a href="/play">sandbox</a> 
+              <a href="/sandbox">sandbox</a> 
           </nav>
           <main>
             <Outlet/>

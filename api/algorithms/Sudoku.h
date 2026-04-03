@@ -1,3 +1,6 @@
+#include <chrono>
+#include <cstdlib>
+#include <cmath>
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -7,12 +10,36 @@ using namespace std;
 
 class Sudoku{
 public:
+    static constexpr int EMPTY_TILE = -1, NULL_POSITION = -1;    
+
+    class FillIn{
+    public:
+        int x, y, solution;
+        FillIn(int x, int y, int solution): x(x), y(y), solution(solution){}
+    };
+
     size_t size, size_2;
     vector<vector<vector<bool>>> pos_sol;
     vector<vector<int>> solved;
+
+
     Sudoku(size_t size = 3): size(size), size_2(size*size) {
-        this->solved = vector(size_2, vector(size_2, -1));
+        this->solved = vector(size_2, vector(size_2, EMPTY_TILE));
         this->pos_sol = vector(this->size_2, vector(this->size_2, vector(this->size_2, true)));  
+    }
+
+    Sudoku operator=(const Sudoku b){
+        this->size = b.size;
+        this->size_2 = b.size_2;
+        for(int y = 0; y<b.size_2; y++){
+            for(int x = 0; x<b.size_2; x++){
+                this->solved[x][y] = b.solved[x][y];
+                for(int sol = 0; sol<b.size_2; sol++){
+                    this->pos_sol[x][y][sol] = b.pos_sol[x][y][sol];
+                }
+            }
+        }
+        return *this;
     }
 
     //takes in coordinates of a tile and returns what square it's in
@@ -35,14 +62,24 @@ public:
         return tiles;
     }
 
-    bool solve(bool random = false){
+    //returns true if the board is solvable and false otherwise
+    bool solve(bool random = false, bool save_steps = true){
         while(!this->all_filled_in()){
-            if(!this->update_pos_sol()){
-                return false;
-            }
-            this->fill_solved_tiles();
+            // this can be true if guess() was incorrect or if the original problem was impossible 
             if(!correct()){
                 return false;
+            }
+            this->update_pos_sol();
+            vector<FillIn*> solvable = this->find_solvable_tiles();
+            if(solvable.size() != 0){
+                for(auto i : solvable){
+                    this->fill_tile(i);
+                }
+            }
+            else{//if there are no tiles that we can fill in AND guessing failed
+                if(!guess()) {
+                    return false;
+                }
             }
         }
         return true;
@@ -63,7 +100,7 @@ public:
             for(int y = 0; y<this->size_2; y++){
                 cout<<"|   ";
 
-                if(solved[x][y] != -1){
+                if(solved[x][y] != EMPTY_TILE){
                     cout<<solved[x][y]+1;
                 }
                 else{
@@ -144,7 +181,7 @@ public:
 
     //return value = false, means that the board can not be solved
     bool update_pos_sol(){
-        //we create a copy of pos_sol just to see if it changes at all. if it doesn't, we need to guess();
+        //we create a copy of pos_sol just to see if it changes at all.
         bool copy_pos_sol[this->size_2][this->size_2][this->size_2];
         for(int i =0 ;i<this->size_2; i++){
             for(int j = 0; j<this->size_2; j++){
@@ -156,7 +193,7 @@ public:
         //we walk through all the tiles and if we find a solved one we delete that possible solution from it's row, column and square
         for(int x = 0; x<this->size_2; x++){
             for(int y = 0; y<this->size_2; y++){
-                if(solved[x][y] != -1){
+                if(solved[x][y] != EMPTY_TILE){
                     //row and column
                     for(int i = 0; i<this->size_2; i++){
                         pos_sol[x][i][solved[x][y]] = false;
@@ -184,7 +221,7 @@ public:
                 }
             }
         }        
-        return guess();
+        return false;
     }
 
     //takes in the coordinates and solution to a tile and sets all possible solutions to that tile to false except the specified one
@@ -197,14 +234,18 @@ public:
         this->pos_sol[x][y][sol] = true;
     }
 
-    // if there is only 1 'true' value in the vector, return it's index, otherwise return -1
+    void fill_tile(FillIn *fill_in){
+        fill_tile(fill_in->x, fill_in->y, fill_in->solution);
+    }
+
+    // if there is only 1 'true' value in the vector, return it's index, otherwise return NULL_POSITION
     int position_of_unique_true(vector<bool> v){
         bool accoured = false;
-        int position = -1;
+        int position = NULL_POSITION;
         for(int i = 0; i<v.size(); i++){
             if(v[i]){
                 if(accoured){
-                    return -1;
+                    return NULL_POSITION;
                 }
                 accoured = true;
                 position = i;
@@ -212,17 +253,21 @@ public:
         }
         return position;
     }
-
-    //if a tile has only 1 pos_sol, or a solution has only 1 possible tile in a column/row/square, fill it in
-    void fill_solved_tiles(){
+    
+    // if a tile has only 1 pos_sol, or a solution has only 1 possible tile in a column/row/square, fill it in
+    vector<FillIn*> find_solvable_tiles(){
         int sol_counter, tile_counter;
+        // records all the tiles that were filled in in the format: "x y s x y s ...", where s is the solution 
+        // so if it filled in the tile in row 6, column 7 with the solution 0 and the tile on (0, 5) with 8, then steps = "6 7 0 0 5 8"
+        vector<FillIn*> steps = vector<FillIn*>(0);
         for(int x = 0; x<this->size_2; x++){
             for(int y = 0; y<this->size_2; y++){
+                if(solved[x][y] != EMPTY_TILE) continue;
                 //if there is only 1 possible_solution for that tile
 
-                int pos_of_unique_true = position_of_unique_true(pos_sol[x][y]); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to -1
-                if(pos_of_unique_true != -1){
-                    fill_tile(x, y, pos_of_unique_true);
+                int pos_of_unique_true = position_of_unique_true(pos_sol[x][y]); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to NULL_POSITION
+                if(pos_of_unique_true != NULL_POSITION){
+                    steps.push_back(new FillIn(x, y, pos_of_unique_true));
                 }
             }
         }
@@ -230,19 +275,20 @@ public:
         //row
         for(int x =0; x<this->size_2; x++){
             for(int sol = 0; sol<this->size_2; sol++){
-                
+
                 vector<bool> row(this->size_2);
                 for(int i = 0; i<this->size_2; i++){//tile in row
                     row[i] = pos_sol[x][i][sol];    
                 }
                 
-                int tile_y = position_of_unique_true(row); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to -1
-
-                if(tile_y != -1){
-                    fill_tile(x, tile_y, sol);
+                int tile_y = position_of_unique_true(row); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to NULL_POSITION
+                
+                if(tile_y != NULL_POSITION && solved[x][tile_y] == EMPTY_TILE){
+                    steps.push_back(new FillIn(x, tile_y, sol));
                 }
             }
         }
+
         //column
         for(int y =0; y<this->size_2; y++){
             for(int sol = 0; sol<this->size_2; sol++){
@@ -251,13 +297,14 @@ public:
                     column[i] = pos_sol[i][y][sol];    
                 }
                 
-                int tile_x = position_of_unique_true(column); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to -1
+                int tile_x = position_of_unique_true(column); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to NULL_POSITION
 
-                if(tile_x != -1){
-                    fill_tile(tile_x, y, sol);
+                if(tile_x != NULL_POSITION && solved[tile_x][y] == EMPTY_TILE){
+                    steps.push_back(new FillIn(tile_x, y, sol));
                 }
             }
         }
+
         //square
         for(int square_id = 0; square_id<this->size_2; square_id++){
             for(int sol = 0; sol<this->size_2; sol++){
@@ -267,20 +314,22 @@ public:
                     pos_sol_square_tiles[i] = pos_sol[square_tiles_coordinates[i].first][square_tiles_coordinates[i].second][sol];
                 }
 
-                int tile_id = position_of_unique_true(pos_sol_square_tiles); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to -1
+                int tile_id = position_of_unique_true(pos_sol_square_tiles); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to NULL_POSITION
 
-                if(tile_id != -1){
-                    fill_tile(square_tiles_coordinates[tile_id].first,square_tiles_coordinates[tile_id].second, sol);
+                if(tile_id != NULL_POSITION && solved[square_tiles_coordinates[tile_id].first][square_tiles_coordinates[tile_id].second] == EMPTY_TILE){
+                    steps.push_back(new FillIn(square_tiles_coordinates[tile_id].first, square_tiles_coordinates[tile_id].second, sol));
                 }
             }
         }
+
+        return steps;
     }
 
     bool all_filled_in(){
         //returns true if the entire sudoku is filled in. if not, returns false
         for(int x = 0; x<this->size_2; x++){
             for(int y = 0; y<this->size_2; y++){
-                if(solved[x][y] == -1){
+                if(solved[x][y] == EMPTY_TILE){
                     return false;
                 }
             }
@@ -343,17 +392,17 @@ public:
     }
 
     //solve with educated guesses
-    //shoutout krzysiek for the idea. i would not have came up with that myself
+    //shoutout to krzysiek for the idea. i would not have came up with that myself
     // if random = false, it picks THE SMALLEST possible solution in the tile with the least possible solutions
     // if random = true,  it picks   A RANDOM   possible solution in the tile with the least possible solutions
     // it's used for generation of random problems
     bool guess(bool random = false){
-        // we find the tile with the least pos_sols possible
-        vector<int> least_sols(this->size_2+1, -1);
+        // find the tile with the least pos_sols possible
+        vector<int> least_sols(this->size_2+1, EMPTY_TILE); // this->size_2 + 1 is here so every tile's pos_sol will be shorter than this
         pair<int, int> best_tile_coords;
         for(int x = 0; x<this->size_2; x++){
             for(int y = 0; y<this->size_2; y++){
-                if(solved[x][y] == -1){
+                if(solved[x][y] == EMPTY_TILE){
                     vector<int> sols;
                     for(int sol = 0; sol<this->size_2; sol++){
                         if(pos_sol[x][y][sol]){
@@ -416,34 +465,63 @@ public:
         return false;
     }
 
-    void print_solution_to_file(string file = "state.txt"){
-        string return_value = "";
-        return_value += "{\"state\":\"";
+    //returns a string representing a json object representing the state of the board in the format:
+    /*
+    {
+        "state":"x y s x y s",
+        "solvable":[bool]
+    }
+    where s is the solution to the tile (x, y). s = '/' is an empty tile.
+    */
+   
+    string to_json(){
+        string state_json = "";
+        state_json += "{\"state\":\"";
         for(int y = 0; y<this->size_2; y++){
             for(int x = 0; x<this->size_2; x++){
-                return_value += x + '0';
-                return_value += ' ';
-                return_value += y + '0';
-                return_value += ' ';
-                return_value += this->solved[x][y] + '0';
-                return_value += ' ';
+                if(this->solved[x][y] == EMPTY_TILE) continue;
+                state_json += x + '0';
+                state_json += ' ';
+                state_json += y + '0';
+                state_json += ' ';
+                state_json += this->solved[x][y] + '0';
+                state_json += ' ';
             }
         }
-        return_value += "\",\"solvable\":";
-        if(this->correct()){
-            return_value += "true";
+        state_json += "\",\"solvable\":";
+        Sudoku tmp = *this;
+        if(tmp.solve()){
+            state_json += "true";
         }else{
-            return_value += "false";
+            state_json += "false";
         }
-        return_value += "}\n";
-        ofstream out(file);
-        out<<return_value;
-    
+        state_json += "}\n";
+        return state_json;
     }
-
-
 
     void generate_solved_board(){
         solve(true);
     }
+    
+    //returns a FillIn object representing a correct solution to a (semi) random tile. returns nullptr if the board is unsolvable
+    FillIn hint(){
+        vector<FillIn*> solvable_tiles = this->find_solvable_tiles();
+        if(solvable_tiles.size() != 0){
+            srand(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+            int choice = rand() % solvable_tiles.size();
+            return *solvable_tiles[choice];
+        }      
+        
+        Sudoku tmp_sudoku = *this;
+        tmp_sudoku.solve();
+
+        for(int y = 0; y<this->size_2; y++){
+            for(int x = 0; x<this->size_2; x++){
+                if(tmp_sudoku.solved[x][y] != this->solved[x][y]){
+                    return FillIn(x, y, tmp_sudoku.solved[x][y]);
+                }
+            }
+        }
+        return FillIn(NULL_POSITION, NULL_POSITION, EMPTY_TILE);
+    }  
 };

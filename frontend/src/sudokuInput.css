@@ -35,11 +35,14 @@ body{
 
 .sudoku_error_msg{
     width: 500px;
-    margin: 0 auto;
-    display: block;
+    margin: 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: rgb(167, 37, 37);
     text-align: center;
-    padding: 20px;
+    transition: 0.75s;
+    height: 50px;
     border: 1px solid #661717;
     border-radius: 3px;
 }
@@ -59,7 +62,7 @@ body{
     gap: 8px;
 }
 
-.solve_button{
+.btn-big{
     height: 100px;
     width: 180px;
     background-color: var(--bright);
