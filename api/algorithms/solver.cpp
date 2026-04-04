@@ -6,12 +6,12 @@ namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]){
     Sudoku problem;
-    // if(argc != 2){
-    //     std::cout<<"i need a command line argument. an input file would be nice.";
-    //     return 1;
-    // }
-    // const string INPUT_FILE = argv[1];
-    const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\algorytmika\\3klasa\\sudoku\\api\\algorithms\\input_state.txt"; //this is only here for debugging
+    if(argc != 2){
+        std::cout<<"i need a command line argument. an input file would be nice :)";
+        return 1;
+    }
+    const string INPUT_FILE = argv[1];
+    // const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\algorytmika\\3klasa\\sudoku\\api\\algorithms\\input_state.txt"; //this is only here for debugging
     int n, y, x, s;
     ifstream in(INPUT_FILE);
 
@@ -28,6 +28,6 @@ int main(int argc, char *argv[]){
     }
     
     problem.solve();
-    std::cout<<problem.to_json();    
+    std::cout<<problem.state_string();    
     return 0;
 }

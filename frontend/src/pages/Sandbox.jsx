@@ -50,7 +50,7 @@ export default function Main(propos){
                 <p className="sudoku_error_msg" style={{opacity: errorMsg == ""? "0%": "100%"}}>{errorMsg}</p>
                 <div className="sudoku_main">
                     <Sudoku state={state} setState={setState}/>
-                    {/* <textarea 
+                    <textarea 
                         className="state_input"
                         autoFocus 
                         type="text"
@@ -59,7 +59,7 @@ export default function Main(propos){
                             setState(e.target.value);
                         }}
                         style={{"position":"absolute", "left":"10px"}}
-                    /> */}
+                    />
                     <div style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                         <button className="btn-big" onClick={solve}>SOLVE</button>
                         <button className="btn-big" onClick={hint}>HINT</button>
