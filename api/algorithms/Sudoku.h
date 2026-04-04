@@ -69,7 +69,7 @@ public:
             if(!correct()){
                 return false;
             }
-            this->update_pos_sol();
+            std::cout<<this->update_pos_sol()<<"\n";
             vector<FillIn*> solvable = this->find_solvable_tiles();
             if(solvable.size() != 0){
                 for(auto i : solvable){
@@ -182,7 +182,7 @@ public:
     //return value = false, means that the board can not be solved
     bool update_pos_sol(){
         //we create a copy of pos_sol just to see if it changes at all.
-        bool copy_pos_sol[this->size_2][this->size_2][this->size_2];
+        auto copy_pos_sol = this->pos_sol;
         for(int i =0 ;i<this->size_2; i++){
             for(int j = 0; j<this->size_2; j++){
                 for(int k = 0; k<this->size_2; k++){
@@ -212,10 +212,10 @@ public:
         }
         
         //check if anything has changed
-        for(int i =0 ;i<this->size_2; i++){
-            for(int j = 0; j<this->size_2; j++){
-                for(int k = 0; k<this->size_2; k++){
-                    if(copy_pos_sol[i][j][k] != pos_sol[i][j][k]){
+        for(int x =0 ;x<this->size_2; x++){
+            for(int y = 0; y<this->size_2; y++){
+                for(int sol = 0; sol<this->size_2; sol++){
+                    if(copy_pos_sol[x][y][sol] != pos_sol[x][y][sol]){
                         return true;// IMPORTANT THIS MIGHT FUCK ME LATER SO JUST WATCH OUT
                     }
                 }
@@ -231,6 +231,20 @@ public:
         for(int i = 0; i<this->size_2; i++){
             this->pos_sol[x][y][i] = false;
         }
+        
+        // update pos_sol of all the tiles in the row, column and square of this tile
+        //row and column
+        for(int i = 0; i<this->size_2; i++){
+            pos_sol[x][i][sol] = false;
+            pos_sol[i][y][sol] = false;
+        }
+
+        // square
+        vector<pair<int, int>> square_tiles = tiles_of_square(what_square(x, y));
+        for(auto i: square_tiles){
+            pos_sol[i.first][i.second][sol] = false;
+        }
+
         this->pos_sol[x][y][sol] = true;
     }
 
@@ -257,14 +271,11 @@ public:
     // if a tile has only 1 pos_sol, or a solution has only 1 possible tile in a column/row/square, fill it in
     vector<FillIn*> find_solvable_tiles(){
         int sol_counter, tile_counter;
-        // records all the tiles that were filled in in the format: "x y s x y s ...", where s is the solution 
-        // so if it filled in the tile in row 6, column 7 with the solution 0 and the tile on (0, 5) with 8, then steps = "6 7 0 0 5 8"
         vector<FillIn*> steps = vector<FillIn*>(0);
         for(int x = 0; x<this->size_2; x++){
             for(int y = 0; y<this->size_2; y++){
                 if(solved[x][y] != EMPTY_TILE) continue;
                 //if there is only 1 possible_solution for that tile
-
                 int pos_of_unique_true = position_of_unique_true(pos_sol[x][y]); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to NULL_POSITION
                 if(pos_of_unique_true != NULL_POSITION){
                     steps.push_back(new FillIn(x, y, pos_of_unique_true));
@@ -272,16 +283,15 @@ public:
             }
         }
         //when that possible_solution is unique in a row / column / square
-        //row
+        // column
         for(int x =0; x<this->size_2; x++){
             for(int sol = 0; sol<this->size_2; sol++){
-
-                vector<bool> row(this->size_2);
-                for(int i = 0; i<this->size_2; i++){//tile in row
-                    row[i] = pos_sol[x][i][sol];    
+                vector<bool> column(this->size_2);
+                for(int i = 0; i<this->size_2; i++){//tile in column
+                    column[i] = pos_sol[x][i][sol];    
                 }
                 
-                int tile_y = position_of_unique_true(row); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to NULL_POSITION
+                int tile_y = position_of_unique_true(column); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to NULL_POSITION
                 
                 if(tile_y != NULL_POSITION && solved[x][tile_y] == EMPTY_TILE){
                     steps.push_back(new FillIn(x, tile_y, sol));
@@ -289,15 +299,15 @@ public:
             }
         }
 
-        //column
+        //row
         for(int y =0; y<this->size_2; y++){
             for(int sol = 0; sol<this->size_2; sol++){
-                vector<bool> column(this->size_2);
-                for(int i = 0; i<this->size_2; i++){//tile in column
-                    column[i] = pos_sol[i][y][sol];    
+                vector<bool> row(this->size_2);
+                for(int i = 0; i<this->size_2; i++){//tile in row
+                    row[i] = pos_sol[i][y][sol];    
                 }
                 
-                int tile_x = position_of_unique_true(column); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to NULL_POSITION
+                int tile_x = position_of_unique_true(row); //position of the only 'true' value in the vector. if there is not exactly 1 'true' value, this is equal to NULL_POSITION
 
                 if(tile_x != NULL_POSITION && solved[tile_x][y] == EMPTY_TILE){
                     steps.push_back(new FillIn(tile_x, y, sol));
@@ -505,6 +515,7 @@ public:
     
     //returns a FillIn object representing a correct solution to a (semi) random tile. returns nullptr if the board is unsolvable
     FillIn hint(){
+        std::cout<<this->update_pos_sol()<<"\n";
         vector<FillIn*> solvable_tiles = this->find_solvable_tiles();
         if(solvable_tiles.size() != 0){
             srand(std::chrono::high_resolution_clock::now().time_since_epoch().count());

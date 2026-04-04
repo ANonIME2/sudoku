@@ -3,12 +3,12 @@ using namespace std;
 
 int main(int argc, char* argv[]){
     Sudoku problem;
-    if(argc != 2){
-        std::cout<<"i need a command line argument. an input file would be nice.";
-        return 1;
-    }
-    const string INPUT_FILE = argv[1];
-    // const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\algorytmika\\3klasa\\sudoku\\api\\algorithms\\input_state.txt";
+    // if(argc != 2){
+    //     std::cout<<"i need a command line argument. an input file would be nice.";
+    //     return 1;
+    // }
+    // const string INPUT_FILE = argv[1];
+    const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\algorytmika\\3klasa\\sudoku\\api\\algorithms\\input_state.txt";
     int n, y, x, s;
     ifstream in(INPUT_FILE);
 
