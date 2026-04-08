@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <stack>
+#include <fstream>
 using namespace std;
 
 class Sudoku{
@@ -57,7 +58,6 @@ public:
     vector<vector<vector<bool>>> pos_sol;
     vector<vector<short>> solved;
 
-
     Sudoku(size_t size = 3): size(size), size_2(size*size) {
         this->solved = vector(size_2, vector(size_2, EMPTY_TILE));
         this->pos_sol = vector(this->size_2, vector(this->size_2, vector(this->size_2, true)));  
@@ -100,7 +100,6 @@ public:
     // solves the thing. returns it's own special type because it's so special and cool
     SolveReturnType solve(vector<Step> steps = vector<Step>(0), bool random = false){
         while(!this->all_filled_in()){
-            // this can be true if guess() was incorrect or if the original problem was not solvable
             if(!correct()){
                 return SolveReturnType(false, steps);
             }
@@ -111,14 +110,97 @@ public:
                 for(auto i : solvable){
                     this->fill_tile(i);
                 }
+                //sometimes, find_solvable_tiles() can reveal that the board is not solvable
+                if(!correct()){
+                    return SolveReturnType(false, steps);
+                }                
             }
             else{
-                if(!guess(steps)) {
+                auto guess_msg = guess(steps);
+                steps = guess_msg.second;
+                if(!guess_msg.first) {
                     return SolveReturnType(false, steps); //if there are no tiles that we can fill in AND guessing failed
                 }
             }
         }
         return SolveReturnType(true, steps);
+    }
+
+    //solve with educated guesses
+    //shoutout to krzysiek for the idea. i would not have came up with that myself
+    // if random = false, it picks THE SMALLEST possible solution in the tile with the least possible solutions
+    // if random = true,  it picks   A RANDOM   possible solution in the tile with the least possible solutions
+    // it's used for generation of random problems
+    pair<bool, vector<Step>> guess(vector<Step> steps = vector<Step>(0), bool random = false){
+        // find the tile with the least pos_sols possible
+        vector<short> guesses(this->size_2+1, EMPTY_TILE); // this->size_2 + 1 is here so every single tile will have less pos_sols than this
+        pair<short, short> best_tile_coords;
+        for(short x = 0; x<this->size_2; x++){
+            for(short y = 0; y<this->size_2; y++){
+                if(solved[x][y] == EMPTY_TILE){
+                    vector<short> sols;
+                    for(short sol = 0; sol<this->size_2; sol++){
+                        if(pos_sol[x][y][sol]){
+                            sols.push_back(sol);
+                        }
+                    }
+                    if(sols.size()<guesses.size()){
+                        guesses = sols;
+                        best_tile_coords = {x, y};
+                    }
+                }
+            }
+        }
+        
+        //sometimes more than one solution is possible for a tile, so this randomises which one we pick
+        if(random){
+            srand(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+            std::sort(guesses.begin(), guesses.end(), [](short a, short b){return rand()%2 == 1;});
+        }
+
+        //we check every pos_sol for that tile
+        short copy_solved[this->size_2][this->size_2];
+        bool copy_pos_sol[this->size_2][this->size_2][this->size_2];
+        for(short i = 0; i<guesses.size(); i++){
+            FillIn fill_in = FillIn(best_tile_coords.first, best_tile_coords.second, guesses[i]);
+            Step new_step = Step(vector<FillIn>(1, fill_in), "guess");
+            auto steps_copy = steps; // will be used later if we need to cancel the guess
+            steps.push_back(new_step);
+
+            Sudoku guessed_board = *this;
+            guessed_board.fill_tile(fill_in);
+            SolveReturnType solve_msg = guessed_board.solve(steps);
+            steps = solve_msg.steps;
+            
+            if(solve_msg.solvable){//if the board can be solved with this guess
+                this->solved = guessed_board.solved;
+                return make_pair(true, steps);
+            }else{
+                steps = steps_copy;
+                ;
+            }
+
+        }
+        return make_pair(false, steps);
+    }
+
+    static string steps_json(vector<Step> steps){
+        string tmp_state_json = ", \"steps\":[";
+        for(auto step : steps){
+            //fill-ins
+            tmp_state_json += "{\"fillIns\":\"";
+                for(auto fill_in : step.fill_ins){
+                    tmp_state_json += to_string(fill_in.x) + " ";
+                    tmp_state_json += to_string(fill_in.y) + " ";
+                    tmp_state_json += to_string(fill_in.solution) + " ";
+                }
+                tmp_state_json += "\"";
+                //msg
+                tmp_state_json += ",\"msg\":\"" + step.comment;  
+            tmp_state_json += "\"},";
+        }
+        tmp_state_json += "]";
+        return tmp_state_json;
     }
 
     void update_pos_sol(short solution){
@@ -273,7 +355,7 @@ public:
             }
         }
 
-        //rows
+        //columns
         for(short x = 0; x<this->size_2; x++){
             for(short sol = 0; sol<this->size_2; sol++){
                 bool is_here = false;
@@ -286,7 +368,7 @@ public:
             }
         }
 
-        //cols
+        //rows
         for(short y = 0; y<this->size_2; y++){
             for(short sol = 0; sol<this->size_2; sol++){
                 bool is_here = false;
@@ -299,6 +381,7 @@ public:
             }
         }
 
+        // if there is a tile which has no pos_sols
         for(short x = 0; x<this->size_2; x++){
             for(short y = 0; y<this->size_2; y++){
                 short counter = 0;
@@ -309,60 +392,6 @@ public:
             }
         }
         return true;
-    }
-
-    //solve with educated guesses
-    //shoutout to krzysiek for the idea. i would not have came up with that myself
-    // if random = false, it picks THE SMALLEST possible solution in the tile with the least possible solutions
-    // if random = true,  it picks   A RANDOM   possible solution in the tile with the least possible solutions
-    // it's used for generation of random problems
-    pair<bool, vector<Step>> guess(vector<Step> steps = vector<Step>(0), bool random = false){
-        // find the tile with the least pos_sols possible
-        vector<short> guesses(this->size_2+1, EMPTY_TILE); // this->size_2 + 1 is here so every single tile will have less pos_sols than this
-        pair<short, short> best_tile_coords;
-        for(short x = 0; x<this->size_2; x++){
-            for(short y = 0; y<this->size_2; y++){
-                if(solved[x][y] == EMPTY_TILE){
-                    vector<short> sols;
-                    for(short sol = 0; sol<this->size_2; sol++){
-                        if(pos_sol[x][y][sol]){
-                            sols.push_back(sol);
-                        }
-                    }
-                    if(sols.size()<guesses.size()){
-                        guesses = sols;
-                        best_tile_coords = {x, y};
-                    }
-                }
-            }
-        }
-        
-        //sometimes more than one solution is possible for a tile, so this randomises which one we pick
-        if(random){
-            srand(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-            std::sort(guesses.begin(), guesses.end(), [](short a, short b){return rand()%2 == 1;});
-        }
-
-        //we check every pos_sol for that tile
-        short copy_solved[this->size_2][this->size_2];
-        bool copy_pos_sol[this->size_2][this->size_2][this->size_2];
-        for(short i = 0; i<guesses.size(); i--){
-            Sudoku guessed_board = *this;
-            FillIn fill_in = FillIn(best_tile_coords.first, best_tile_coords.second, guesses[i]);
-            guessed_board.fill_tile(fill_in);
-            Step new_step = Step(vector<FillIn>(1, fill_in), "guess");
-            steps.push_back(new_step);
-            SolveReturnType solve_msg =guessed_board.solve(steps); 
-            if(solve_msg.solvable){//if the board can be solved with this guess
-                for(auto i : solve_msg.steps){
-                    steps.push_back(i);
-                }
-                this->solved = guessed_board.solved;
-                return make_pair(true, steps);
-            }
-            steps.pop_back();
-        }
-        return make_pair(false, steps);
     }
 
     /*

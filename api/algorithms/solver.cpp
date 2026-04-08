@@ -48,24 +48,7 @@ int main(int argc, char *argv[]){
         }
 
         //steps
-        string tmp_state_json = ", \"steps\":[";
-        for(auto step : solve_msg.steps){
-            //fill-ins
-            tmp_state_json += "{\"fillIns\":\"";
-                for(auto fill_in : step.fill_ins){
-                    tmp_state_json += to_string(fill_in.x) + " ";
-                    tmp_state_json += to_string(fill_in.y) + " ";
-                    tmp_state_json += to_string(fill_in.solution) + " ";
-                }
-                tmp_state_json += "\"";
-                //msg
-                tmp_state_json += ",\"msg\":\"" + step.comment;  
-            tmp_state_json += "\"}";
-        }
-        tmp_state_json += "]";
-
-
-    state_json += tmp_state_json;
+        state_json += Sudoku::steps_json(solve_msg.steps);
 
     state_json += "}";
 
