@@ -4,7 +4,7 @@ using namespace std;
 int main(int argc, char* argv[]){
     Sudoku problem;
     if(argc != 2){
-        std::cout<<"i need a command line argument. an input file would be nice.";
+        std::cout<<"i need a command line argument with an absolute path to the input file";
         return 1;
     }
     const string INPUT_FILE = argv[1];
@@ -27,14 +27,14 @@ int main(int argc, char* argv[]){
     Sudoku::FillIn hint = problem.hint();
     //if the board is unsolvable
     if(hint.solution == Sudoku::EMPTY_TILE){
-        std::cout<<problem.state_string();
+        std::cout<<problem.state_json();
         return 0;
     }
 
     
     Sudoku tmp = problem;
     tmp.fill_tile(&hint);
-    std::cout<<tmp.state_string();
+    std::cout<<tmp.state_json();
 
     return 0;
 }

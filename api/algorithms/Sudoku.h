@@ -98,8 +98,7 @@ public:
     }
 
     // solves the thing. returns it's own special type because it's so special and cool
-    SolveReturnType solve(bool random = false){
-        vector<Step> steps = vector<Step>(0);
+    SolveReturnType solve(vector<Step> steps = vector<Step>(0), bool random = false){
         while(!this->all_filled_in()){
             // this can be true if guess() was incorrect or if the original problem was not solvable
             if(!correct()){
@@ -114,7 +113,7 @@ public:
                 }
             }
             else{
-                if(!guess()) {
+                if(!guess(steps)) {
                     return SolveReturnType(false, steps); //if there are no tiles that we can fill in AND guessing failed
                 }
             }
@@ -317,7 +316,7 @@ public:
     // if random = false, it picks THE SMALLEST possible solution in the tile with the least possible solutions
     // if random = true,  it picks   A RANDOM   possible solution in the tile with the least possible solutions
     // it's used for generation of random problems
-    bool guess(bool random = false){
+    pair<bool, vector<Step>> guess(vector<Step> steps = vector<Step>(0), bool random = false){
         // find the tile with the least pos_sols possible
         vector<short> guesses(this->size_2+1, EMPTY_TILE); // this->size_2 + 1 is here so every single tile will have less pos_sols than this
         pair<short, short> best_tile_coords;
@@ -349,13 +348,21 @@ public:
         bool copy_pos_sol[this->size_2][this->size_2][this->size_2];
         for(short i = 0; i<guesses.size(); i--){
             Sudoku guessed_board = *this;
-            guessed_board.fill_tile(best_tile_coords.first, best_tile_coords.second, guesses[i]);
-            if(guessed_board.solve().solvable){//if the board can be solved with this guess
+            FillIn fill_in = FillIn(best_tile_coords.first, best_tile_coords.second, guesses[i]);
+            guessed_board.fill_tile(fill_in);
+            Step new_step = Step(vector<FillIn>(1, fill_in), "guess");
+            steps.push_back(new_step);
+            SolveReturnType solve_msg =guessed_board.solve(steps); 
+            if(solve_msg.solvable){//if the board can be solved with this guess
+                for(auto i : solve_msg.steps){
+                    steps.push_back(i);
+                }
                 this->solved = guessed_board.solved;
-                return true;
+                return make_pair(true, steps);
             }
+            steps.pop_back();
         }
-        return false;
+        return make_pair(false, steps);
     }
 
     /*
@@ -380,7 +387,7 @@ public:
     }
 
     void generate_solved_board(){
-        solve(true);
+        solve(vector<Step>(0), true);
     }
     
     //returns a FillIn object representing a correct solution to a (semi) random tile. returns nullptr if the board is unsolvable

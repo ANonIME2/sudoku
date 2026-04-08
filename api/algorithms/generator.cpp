@@ -3,6 +3,6 @@
 int main(){
     Sudoku problem;
     problem.generate_solved_board();
-    std::cout<<problem.state_string();
+    std::cout<<problem.state_json();
     return 0;
 }
