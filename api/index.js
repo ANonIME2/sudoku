@@ -10,7 +10,6 @@ const ALGORITHMS_FOLDER = 'algorithms'
 const INPUT_STATE_FILE_NAME = `input_state.txt`
 const __dirname = import.meta.dirname;
 const INPUT_STATE_FILE_ABS_PATH = `${__dirname}\\${ALGORITHMS_FOLDER}\\${INPUT_STATE_FILE_NAME}`
-console.log(`.\\${ALGORITHMS_FOLDER}\\solver.exe ${INPUT_STATE_FILE_ABS_PATH}`);
 
 app.use(express.json())
 app.use(cors())
@@ -33,7 +32,7 @@ app.post('/hint', (req, res)=>{
   let state = req.body.state;
   fs.writeFileSync(INPUT_STATE_FILE_ABS_PATH, state);
   state = JSON.parse(execSync(`.\\${ALGORITHMS_FOLDER}\\hint.exe ${INPUT_STATE_FILE_ABS_PATH}`).toString());
-  console.log(state);
+
   
   return res.json(state);
 })

@@ -1,8 +1,6 @@
 node_modules/
-algorithms/*.txt
+api/algorithms/*.txt
 *.exe
 frontend/README.md
 package-lock.json
 .vscode
-.vscode/
-.vscode/*

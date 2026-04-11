@@ -164,7 +164,6 @@ public:
         for(short i = 0; i<guesses.size(); i++){
             FillIn fill_in = FillIn(best_tile_coords.first, best_tile_coords.second, guesses[i]);
             Step new_step = Step(vector<FillIn>(1, fill_in), "guess");
-            auto steps_copy = steps; // will be used later if we need to cancel the guess
             steps.push_back(new_step);
 
             Sudoku guessed_board = *this;
@@ -176,8 +175,7 @@ public:
                 this->solved = guessed_board.solved;
                 return make_pair(true, steps);
             }else{
-                steps = steps_copy;
-                ;
+                steps.push_back(Step(std::vector<FillIn>(0), "cancel guess"));
             }
 
         }
@@ -185,22 +183,26 @@ public:
     }
 
     static string steps_json(vector<Step> steps){
-        string tmp_state_json = ", \"steps\":[";
+        string prefix = ", \"steps\":[";
+        string state_json = prefix;
         for(auto step : steps){
             //fill-ins
-            tmp_state_json += "{\"fillIns\":\"";
+            state_json += "{\"fillIns\":\"";
                 for(auto fill_in : step.fill_ins){
-                    tmp_state_json += to_string(fill_in.x) + " ";
-                    tmp_state_json += to_string(fill_in.y) + " ";
-                    tmp_state_json += to_string(fill_in.solution) + " ";
+                    state_json += to_string(fill_in.x) + " ";
+                    state_json += to_string(fill_in.y) + " ";
+                    state_json += to_string(fill_in.solution) + " ";
                 }
-                tmp_state_json += "\"";
+                state_json += "\"";
                 //msg
-                tmp_state_json += ",\"msg\":\"" + step.comment;  
-            tmp_state_json += "\"},";
+                state_json += ",\"msg\":\"" + step.comment;  
+            state_json += "\"},";
         }
-        tmp_state_json += "]";
-        return tmp_state_json;
+        if(state_json != prefix){
+            state_json.pop_back();
+        }
+        state_json += "]";
+        return state_json;
     }
 
     void update_pos_sol(short solution){
@@ -348,7 +350,9 @@ public:
                 bool is_here = false;
                 for(short tile = 0; tile<this->size_2; tile++){
                     if(solved[square_tiles[tile].first][square_tiles[tile].second] == sol){
-                        if(is_here) return false;//if we have alreayx saw that solution in this square
+                        if(is_here) {
+                            return false;//if we have already seen that solution in this square
+                        }
                         is_here = true; 
                     }
                 }
@@ -361,7 +365,9 @@ public:
                 bool is_here = false;
                 for(short y = 0; y<this->size_2; y++){
                     if(solved[x][y] == sol){
-                        if(is_here) return false;//if we have already found that solution in this row once
+                        if(is_here){
+                            return false;//if we have already found that solution in this row once
+                        }
                         is_here = true;
                     }
                 }
@@ -374,7 +380,9 @@ public:
                 bool is_here = false;
                 for(short x = 0; x<this->size_2; x++){
                     if(solved[x][y] == sol){
-                        if(is_here) return false;//if we have already found that solution in this column once
+                        if(is_here){
+                            return false;//if we have already found that solution in this column once
+                        }
                         is_here = true;
                     }
                 }
@@ -388,7 +396,9 @@ public:
                 for(short sol = 0; sol<this->size_2; sol++){
                     if(pos_sol[x][y][sol]) counter++;
                 }
-                if(counter == 0) return false;
+                if(counter == 0){
+                    return false;
+                }
             }
         }
         return true;

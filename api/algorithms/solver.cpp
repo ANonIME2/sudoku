@@ -6,12 +6,12 @@ namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]){
     Sudoku problem;
-    // if(argc != 2){
-    //     std::cout<<"i need a command line argument with an absolute path to the input file";
-    //     return 1;
-    // }
-    // const string INPUT_FILE = argv[1];
-    const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\algorytmika\\3klasa\\sudoku\\api\\algorithms\\input_state.txt"; //this is only here for debugging
+    if(argc != 2){
+        std::cout<<"i need a command line argument with an absolute path to the input file";
+        return 1;
+    }
+    const string INPUT_FILE = argv[1];
+    // const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\algorytmika\\3klasa\\sudoku\\api\\algorithms\\input_state.txt"; //this is only here for debugging
     int n, y, x, s;
     ifstream in(INPUT_FILE);
 
@@ -27,7 +27,6 @@ int main(int argc, char *argv[]){
         }
     }
     
-    ofstream out("dupa.json");
 
     Sudoku::SolveReturnType solve_msg = problem.solve();
     string state_json = "";
@@ -53,7 +52,7 @@ int main(int argc, char *argv[]){
     state_json += "}";
 
 
-    // std::cout<<problem.state_json();    
-    out<<state_json;
+    std::cout<<state_json;    
+
     return 0;
 }
