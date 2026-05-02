@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
-import './font.css'
-import './layout.css'
+import './styles/font.css'
+import './styles/layout.css'
 import { RouterProvider } from 'react-router';
 import router from './router';
 

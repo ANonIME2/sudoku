@@ -1,0 +1,8 @@
+.sudokuStepTitle{
+  text-align: center;
+  font-size: 40px;
+  padding: 20px;
+  color:rgb(255, 255, 255);
+  border-radius: 5px;
+  display: block;
+}

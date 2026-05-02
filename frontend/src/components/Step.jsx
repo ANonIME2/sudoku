@@ -1,0 +1,29 @@
+import Sudoku from "./SudokuRenderer";
+import React from "react";
+import "../styles/Step.css"
+import { ReactFlow, Handle, Position} from "@xyflow/react";
+
+
+export default function SudokuStep({data}){
+  const [state, setState] = React.useState(data.state);
+  function render(){
+    return (
+      <div className="sudokuStep" data-id={data.id}>
+        <Handle
+          type="source"
+          position={Position.Right}
+          id={`${data.id}-source`}
+        />
+        <Handle
+          type="target"
+          position={Position.Left}
+          id={`${data.id}-target`}
+        />
+        <p className="sudokuStepTitle">{data.title}</p>
+        <Sudoku state={state} setState={setState} disabled={true}/>
+      </div>
+    )
+  }
+
+  return render();
+}

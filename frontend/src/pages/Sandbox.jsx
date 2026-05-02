@@ -1,6 +1,6 @@
 import settings from "../../../settings.js"
 import React from "react";
-import Sudoku from "../components/SudokuInput";
+import Sudoku from "../components/SudokuRenderer";
 
 export default function Main(propos){
     const [state, setState] = React.useState("")

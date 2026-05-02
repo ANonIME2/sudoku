@@ -19,13 +19,14 @@ body{
     border: var(--small-border) solid #000;
     color: #222;
     background-color: var(--bright);
-    width: 70px;
     aspect-ratio: 1/1;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0px;
     text-align: center;
+    padding:0;  
+    width:70px;
     font-size: 2rem;
 }
 
@@ -76,7 +77,9 @@ body{
     grid-template-rows: repeat(9, 1fr);
     aspect-ratio: 1/1;
     gap:0;
-    box-shadow: 0 0 5px 1px #6554af;
+    box-shadow: 0 0 5px 1px #6554af;    
+    width:auto;
+    height:auto;
 }
 
 

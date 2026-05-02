@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import fs from 'node:fs'
+import fs, { writeFileSync } from 'node:fs'
 import {execSync} from 'child_process'
 import settings from "../settings.js"
 
@@ -18,7 +18,7 @@ app.post('/solve', (req, res)=>{
   let state = req.body.state; 
   fs.writeFileSync(INPUT_STATE_FILE_ABS_PATH, state)
   state = JSON.parse(execSync(`.\\${ALGORITHMS_FOLDER}\\solver.exe ${INPUT_STATE_FILE_ABS_PATH}`).toString());
-  return res.json(state);
+  return res.json(state)
 })
 
 

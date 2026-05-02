@@ -4,3 +4,5 @@ api/algorithms/*.txt
 frontend/README.md
 package-lock.json
 .vscode
+frontend/src/components/testSteps.js
+frontend/src/components/testPreSolvedState.js

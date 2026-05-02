@@ -11,7 +11,7 @@ int main(int argc, char *argv[]){
         return 1;
     }
     const string INPUT_FILE = argv[1];
-    // const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\algorytmika\\3klasa\\sudoku\\api\\algorithms\\input_state.txt"; //this is only here for debugging
+    // const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\aitp\\sudoku\\api\\algorithms\\input_state.txt"; //this is only here for debugging
     int n, y, x, s;
     ifstream in(INPUT_FILE);
 
@@ -27,11 +27,17 @@ int main(int argc, char *argv[]){
         }
     }
     
+    string pre_solved_state_string = problem.state_string();
 
     Sudoku::SolveReturnType solve_msg = problem.solve();
     string state_json = "";
     
     state_json += "{";
+        //pre-solved state
+        state_json += "\"preSolvedState\":\"";
+        state_json += pre_solved_state_string;
+        state_json += "\",";
+
         //state
         state_json += "\"state\":\"";
         state_json += problem.state_string();
