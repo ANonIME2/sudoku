@@ -50,19 +50,35 @@ export default function StepsDisplay(props) {
     graph[parent].children.push(i);
   }
 
-  let initialNodes = [];
-  let guessDepth = 0;
-  graph.forEach((ele, i) => {
-    if(ele.step.msg == "guess"){
-      guessDepth += 1;
-    }else if(ele.step.msg == "cancel guess"){
-      guessDepth -= 1; 
+  for(let i = 0; i<graph.length; i++){
+    if(graph[i].step.msg == "cancel guess"){
+      for(let child = 0; child<graph[i].children.length; child++){
+        graph[graph[i].parent].children.push(graph[i].children[child]);
+      }
     }
+  }
+
+  let initialNodes = [];
+  let currentYDepth = 0;
+  let currentXDepth = 0;
+  let yDepths = []
+  graph.forEach((ele, i) => {
+    currentXDepth += 1;
+    if(ele.step.msg == "guess"){
+      currentYDepth += 1;
+    }else if(ele.step.msg == "cancel guess"){
+      
+      currentXDepth = yDepths[ele.parent] + 1;
+      // yDepth += 1; 
+      return;
+    }
+
+    yDepths.push(currentXDepth);
 
     initialNodes.push({
       id: String(i),
       type:'sudokuStep',
-      position: {x: 700 * i, y: 700 * guessDepth},
+      position: {x: 800 * currentXDepth, y: 800 * currentYDepth},
       data: {
         title: ele.step.msg + ele.step.fillIns,
         state: ele.state
