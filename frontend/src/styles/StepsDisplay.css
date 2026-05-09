@@ -1,6 +1,6 @@
 .stepsDisplay{
-    width: 100vw;
-    height: 100vh;
+    width: inherit;
+    height: inherit;
     border: 2px solid black;
     
 }

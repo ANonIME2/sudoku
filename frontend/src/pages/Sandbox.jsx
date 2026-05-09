@@ -1,3 +1,5 @@
+import "../styles/Sandbox.css"
+import StepsRenderer from "../components/StepsRenderer.jsx";
 import settings from "../../../settings.js"
 import React from "react";
 import Sudoku from "../components/SudokuRenderer";
@@ -5,6 +7,8 @@ import Sudoku from "../components/SudokuRenderer";
 export default function Main(propos){
     const [state, setState] = React.useState("")
     const [errorMsg, setErrorMsg] = React.useState("");
+    const [solveResponse, setSolveResponse] = React.useState({});
+
     const solve = ()=>{
         setErrorMsg("");
         fetch(`http://localhost:${settings.apiPort}/solve`,{
@@ -16,7 +20,8 @@ export default function Main(propos){
         })
         .then(x=>x.text().then(value=>{
             value = JSON.parse(value)
-            
+            setSolveResponse(value);
+
             if(!value["solvable"]){
                 setErrorMsg("This sudoku cannot be solved!")
             }
@@ -44,7 +49,7 @@ export default function Main(propos){
         }));
     }
 
-    function render(){
+    function render(){        
         return (
             <>
                 <p className="sudoku_error_msg" style={{opacity: errorMsg == ""? "0%": "100%"}}>{errorMsg}</p>
@@ -60,9 +65,14 @@ export default function Main(propos){
                         }}
                         style={{"position":"absolute", "left":"10px"}}
                     />
+
                     <div style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                         <button className="btn-big" onClick={solve}>SOLVE</button>
                         <button className="btn-big" onClick={hint}>HINT</button>
+                    </div>
+
+                    <div className="steps-renderer-container">
+                        <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={solveResponse.steps}/>
                     </div>
                 </div>
             </>

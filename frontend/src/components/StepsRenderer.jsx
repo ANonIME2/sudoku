@@ -1,35 +1,35 @@
 import { useState, useCallback } from 'react';
-import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';
+import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge, MarkerType } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import "../styles/stepsDisplay.css"
 import testSteps from './testSteps';
 import Stack from './Stack';
 import testPreSolvedState from './testPreSolvedState';
 import SudokuStep from './Step';
- 
-// const initialNodes = [
-//   { id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
-//   { id: 'n2', position: { x: 0, y: 100 }, data: { label: 'Node 2' } },
-// ];
 
-// const initialEdges = [{ id: 'n1-n2', source: 'n1', target: 'n2' }];
-const initialEdges = [];
 
 class Step{
   constructor(step, state, parent, children){
     this.step = step;
     this.state = state;
     this.parent = parent
-    this.children = children
+    this.children = children;
+    this.XDepth = 0;
+    this.YDepth = 0;
   }
 }
 
-export default function StepsDisplay(props) {
-  // const steps = props.steps;
-  // const preSolvedState = props.preSolvedState;
-  const preSolvedState = testPreSolvedState;
-  const steps = testSteps;
+export default function StepsRenderer(props) {
+  const steps = props.steps == undefined ? [] : props.steps;
+  const preSolvedState = props.preSolvedState == undefined ? "" : props.preSolvedState
+  // const steps = testSteps;
+  // const preSolvedState = testPreSolvedState;
+  console.log(steps);
+  console.log(preSolvedState);
+  
+  
   let graph = [];
+  let initialEdges = [];
 
   //identificators of the parents of "guess" nodes
   let goBacks = new Stack();
@@ -61,24 +61,25 @@ export default function StepsDisplay(props) {
   let initialNodes = [];
   let currentYDepth = 0;
   let currentXDepth = 0;
-  let yDepths = []
+  let xDepths = []
   graph.forEach((ele, i) => {
     currentXDepth += 1;
     if(ele.step.msg == "guess"){
       currentYDepth += 1;
     }else if(ele.step.msg == "cancel guess"){
       
-      currentXDepth = yDepths[ele.parent] + 1;
+      currentXDepth = graph[ele.parent].XDepth + 1;
       // yDepth += 1; 
       return;
     }
 
-    yDepths.push(currentXDepth);
+    ele.XDepth = currentXDepth;
+    ele.YDepth = currentYDepth;
 
     initialNodes.push({
       id: String(i),
       type:'sudokuStep',
-      position: {x: 800 * currentXDepth, y: 800 * currentYDepth},
+      position: {x: 10 * currentXDepth, y: 10 * currentYDepth},
       data: {
         title: ele.step.msg + ele.step.fillIns,
         state: ele.state
@@ -89,10 +90,15 @@ export default function StepsDisplay(props) {
       initialEdges.push({
         id: String(i)+"-"+String(child), 
         source:String(i), 
-        target: String(child)
+        target: String(child),
+        MarkerType: MarkerType.Arrow
       })
     });
     
+  });
+
+  graph.forEach(ele => {
+    console.log(`x: ${ele.XDepth} y: ${ele.YDepth}`);
   });
 
   const [nodes, setNodes] = useState(initialNodes);
