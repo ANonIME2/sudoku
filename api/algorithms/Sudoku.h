@@ -169,7 +169,7 @@ public:
         pair<short, short> picked_tile_coords;
         vector<short> picked_tile_guesses;
 
-        //sometimes more than one solution is possible for a tile, so this randomises which one we pick
+        //sometimes more than one solution is can be correct for a tile, so this randomises which one we pick
         if(random){
             std::mt19937 rng(std::random_device{}());
             
