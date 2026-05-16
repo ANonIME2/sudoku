@@ -1,5 +1,5 @@
 import "../styles/Sandbox.css"
-import StepsRenderer from "../components/StepsRenderer.jsx";
+// import StepsRenderer from "../components/StepsRenderer.jsx";
 import settings from "../../../settings.js"
 import React from "react";
 import Sudoku from "../components/SudokuRenderer";
@@ -72,7 +72,7 @@ export default function Main(propos){
                     </div>
 
                     <div className="steps-renderer-container">
-                        <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={solveResponse.steps}/>
+                        {/* <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={solveResponse.steps}/> */}
                     </div>
                 </div>
             </>

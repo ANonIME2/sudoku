@@ -2,10 +2,10 @@ import { useState, useCallback } from 'react';
 import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge, MarkerType } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import "../styles/stepsDisplay.css"
-import testSteps from './testSteps';
 import Stack from './Stack';
-import testPreSolvedState from './testPreSolvedState';
 import SudokuStep from './Step';
+import testSteps from './testSteps';
+import testPreSolvedState from './testPreSolvedState';
 
 
 class Step{
@@ -20,13 +20,16 @@ class Step{
 }
 
 export default function StepsRenderer(props) {
-  const steps = props.steps == undefined ? [] : props.steps;
-  const preSolvedState = props.preSolvedState == undefined ? "" : props.preSolvedState
-  // const steps = testSteps;
-  // const preSolvedState = testPreSolvedState;
-  console.log(steps);
-  console.log(preSolvedState);
-  
+  // const steps = props.steps == undefined ? [] : props.steps;
+  // const preSolvedState = props.preSolvedState == undefined ? "" : props.preSolvedState
+  const steps = testSteps;
+  const preSolvedState = testPreSolvedState;
+
+  const [nodes, setNodes] = useState(initialNodes);
+  const [edges, setEdges] = useState(initialEdges);
+  const nodeTypes = {
+    sudokuStep: SudokuStep
+  }
   
   let graph = [];
   let initialEdges = [];
@@ -69,7 +72,6 @@ export default function StepsRenderer(props) {
     }else if(ele.step.msg == "cancel guess"){
       
       currentXDepth = graph[ele.parent].XDepth + 1;
-      // yDepth += 1; 
       return;
     }
 
@@ -79,7 +81,7 @@ export default function StepsRenderer(props) {
     initialNodes.push({
       id: String(i),
       type:'sudokuStep',
-      position: {x: 10 * currentXDepth, y: 10 * currentYDepth},
+      position: {x: 700 * currentXDepth, y: 700 * currentYDepth},
       data: {
         title: ele.step.msg + ele.step.fillIns,
         state: ele.state
@@ -96,16 +98,20 @@ export default function StepsRenderer(props) {
     });
     
   });
+  console.log("initialNodes:");
+  console.log(initialNodes);
+  console.log("initialEdges: ");
+  console.log(initialEdges);
+  
 
-  graph.forEach(ele => {
-    console.log(`x: ${ele.XDepth} y: ${ele.YDepth}`);
-  });
+  console.log(nodes);
+  console.log(edges);
 
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
-  const nodeTypes = {
-    sudokuStep: SudokuStep
-  }
+  useEffect(() => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [initialNodes, initialEdges]);
+
 
   return (
     <div className='stepsDisplay'>
