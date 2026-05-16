@@ -132,26 +132,51 @@ public:
     // if random = true,  it picks   A RANDOM   possible solution in the tile with the least possible solutions
     // it's used for generation of random problems
     pair<bool, vector<Step>> guess(vector<Step> steps = vector<Step>(0), bool random = false){
+        auto rng = std::
         // find the tile with the least pos_sols possible
-        vector<short> guesses(this->size_2+1, EMPTY_TILE); // this->size_2 + 1 is here so every single tile will have less pos_sols than this
+        vector<short> guesses(0); // this->size_2 + 1 is here so every single tile will have less pos_sols than this
         pair<short, short> best_tile_coords;
-        for(short x = 0; x<this->size_2; x++){
-            for(short y = 0; y<this->size_2; y++){
-                if(solved[x][y] == EMPTY_TILE){
-                    vector<short> sols;
-                    for(short sol = 0; sol<this->size_2; sol++){
-                        if(pos_sol[x][y][sol]){
-                            sols.push_back(sol);
+
+        if(random){
+            bool tile_found = false;
+            vector<short> random_order_rows, random_order_cols;
+            for(int i = 0; i<this->size_2; i++){
+                random_order_cols.push_back(i);
+                random_order_rows.push_back(i);
+            }
+            std::shuffle()
+
+            for(short x = 0; x<this->size_2 && !tile_found; x++){
+                for(short y = 0; y<this->size_2 && !tile_found; y++){
+                    if(solved[x][y] == EMPTY_TILE){
+                        vector<short> sols;
+                        for(short sol = 0; sol<this->size_2; sol++){
+                            if(pos_sol[x][y][sol]){
+                                sols.push_back(sol);
+                            }
                         }
                     }
-                    if(sols.size()<guesses.size()){
-                        guesses = sols;
-                        best_tile_coords = {x, y};
+                }
+            }
+        }else{
+            for(short x = 0; x<this->size_2; x++){
+                for(short y = 0; y<this->size_2; y++){
+                    if(solved[x][y] == EMPTY_TILE){
+                        vector<short> sols;
+                        for(short sol = 0; sol<this->size_2; sol++){
+                            if(pos_sol[x][y][sol]){
+                                sols.push_back(sol);
+                            }
+                        }
+                        if(sols.size()<guesses.size() || (x == 0 && y == 0)){
+                            guesses = sols;
+                            best_tile_coords = {x, y};
+                        }
                     }
                 }
             }
         }
-        
+
         //sometimes more than one solution is possible for a tile, so this randomises which one we pick
         if(random){
             srand(std::chrono::high_resolution_clock::now().time_since_epoch().count());
