@@ -426,7 +426,7 @@ public:
     }
 
     void generate_solved_board(){
-        solve(vector<Step>(0), true);
+        
     }
     
     //returns a FillIn object representing a correct solution to a (semi) random tile. returns nullptr if the board is unsolvable
