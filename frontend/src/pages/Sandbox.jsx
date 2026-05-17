@@ -71,9 +71,9 @@ export default function Main(propos){
                         <button className="btn-big" onClick={hint}>HINT</button>
                     </div>
 
-                    <div className="steps-renderer-container">
+                    {/*<div className="steps-renderer-container">
                         <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={solveResponse.steps}/>
-                    </div>
+                    </div>*/}
                 </div>
             </>
         )
