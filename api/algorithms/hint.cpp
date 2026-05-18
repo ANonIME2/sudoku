@@ -3,12 +3,12 @@ using namespace std;
 
 int main(int argc, char* argv[]){
     Sudoku problem;
-    if(argc != 2){
-        std::cout<<"i need a command line argument with an absolute path to the input file";
-        return 1;
-    }
-    const string INPUT_FILE = argv[1];
-    // const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\algorytmika\\3klasa\\sudoku\\api\\algorithms\\input_state.txt";
+    // if(argc != 2){
+    //     std::cout<<"i need a command line argument with an absolute path to the input file";
+    //     return 1;
+    // }
+    // const string INPUT_FILE = argv[1];
+    const string INPUT_FILE = "D:\\coding_shit\\projects\\szkola\\aitp\\sudoku\\api\\algorithms\\input_state.txt";
     int n, y, x, s;
     ifstream in(INPUT_FILE);
 
@@ -27,14 +27,14 @@ int main(int argc, char* argv[]){
     Sudoku::FillIn hint = problem.hint();
     //if the board is unsolvable
     if(hint.solution == Sudoku::EMPTY_TILE){
-        std::cout<<problem.state_json();
+        std::cout<<'"'<<problem.state_string()<<'"';
         return 0;
     }
 
     
     Sudoku tmp = problem;
     tmp.fill_tile(&hint);
-    std::cout<<tmp.state_json();
+    std::cout<<'"'<<tmp.state_string()<<'"';
 
     return 0;
 }

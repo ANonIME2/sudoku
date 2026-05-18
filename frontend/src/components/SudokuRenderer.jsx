@@ -10,6 +10,10 @@ export default function Sudoku(props) {
   const setState = props.setState;
   const disabled = props.disabled == undefined ? false : props.disabled;
   let stateArray = [];
+  let state = props.state;
+  if(state[state.length-1] != ' '){
+    state += " ";
+  }
 
   const [stateMatrix, setStateMatrix] = React.useState([]);
   //stores all the tiles that have solutions colliding with other tiles (when there is the same solution in the same row or column or square) in the format [{x, y}, {x, y}...]
@@ -54,7 +58,7 @@ export default function Sudoku(props) {
   }, [])
 
   React.useEffect(() => {
-    stateArray = props.state.trim().split(" ");
+    stateArray = state.trim().split(" ");
     stateArray = stateArray.slice(0, stateArray.length - stateArray.length % 3);
 
     let newStateMatrix = [];
@@ -139,7 +143,7 @@ export default function Sudoku(props) {
     setStateMatrix(newStateMatrix)
     setErrorsArray(newErrorsArray)
 
-  }, [props.state])
+  }, [state])
 
   function updateState(x, y, event) {
     if (isNaN(Number(event.target.value)) || '0' == event.target.value) {

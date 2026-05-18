@@ -127,7 +127,7 @@ public:
                 }                
             }
             else{
-                auto guess_msg = guess(steps);
+                auto guess_msg = guess(steps, random);
                 steps = guess_msg.second;
                 if(!guess_msg.first) {
                     return SolveReturnType(false, steps); //if there are no tiles that we can fill in AND guessing failed
@@ -139,28 +139,57 @@ public:
 
     //solve with educated guesses or brute force, if you will
     //shoutout to krzysiek for the idea. i would not have came up with that myself
-    pair<bool, vector<Step>> guess(vector<Step> steps = vector<Step>(0)){
+    // if random = false, it picks THE SMALLEST possible solution in the tile with the least possible solutions
+    // if random = true,  it picks   A RANDOM   possible solution in the tile with the least possible solutions
+    // it's used for generation of random problems
+    pair<bool, vector<Step>> guess(vector<Step> steps = vector<Step>(0), bool random = false){
+        std::mt19937 rng(std::random_device{}());
         // find the tile with the least pos_sols possible
-        vector<short> guesses(0); // this->size_2 + 1 is here so every single tile will have less pos_sols than this
-        pair<short, short> best_tile_coords;
+        vector<short> guesses(0); 
+        pair<short, short> best_tile_coords = {NULL_POSITION, NULL_POSITION};
 
-        for(short x = 0; x<this->size_2; x++){
-            for(short y = 0; y<this->size_2; y++){
-                if(solved[x][y] == EMPTY_TILE){
-                    vector<short> sols;
-                    for(short sol = 0; sol<this->size_2; sol++){
-                        if(pos_sol[x][y][sol]){
-                            sols.push_back(sol);
+        if(random){
+            bool tile_found = false;
+            vector<short> random_order_rows, random_order_cols;
+            for(int i = 0; i<this->size_2; i++){
+                random_order_cols.push_back(i);
+                random_order_rows.push_back(i);
+            }
+            std::shuffle(random_order_cols.begin(), random_order_cols.end(), rng);
+            std::shuffle(random_order_rows.begin(), random_order_rows.end(), rng);
+
+            for(short x = 0; x<this->size_2 && !tile_found; x++){
+                for(short y = 0; y<this->size_2 && !tile_found; y++){
+                    if(solved[x][y] == EMPTY_TILE){
+                        vector<short> sols;
+                        for(short sol = 0; sol<this->size_2; sol++){
+                            if(pos_sol[x][y][sol]){
+                                sols.push_back(sol);
+                            }
                         }
                     }
-                    if(sols.size()<guesses.size() || (x == 0 && y == 0)){
-                        guesses = sols;
-                        best_tile_coords = {x, y};
+                }
+            }
+
+            std::shuffle(guesses.begin(), guesses.end(), rng);
+        }else{
+            for(short x = 0; x<this->size_2; x++){
+                for(short y = 0; y<this->size_2; y++){
+                    if(solved[x][y] == EMPTY_TILE){
+                        vector<short> sols;
+                        for(short sol = 0; sol<this->size_2; sol++){
+                            if(pos_sol[x][y][sol]){
+                                sols.push_back(sol);
+                            }
+                        }
+                        if(sols.size()<guesses.size() || best_tile_coords.first == NULL_POSITION){
+                            guesses = sols;
+                            best_tile_coords = {x, y};
+                        }
                     }
                 }
             }
         }
-    
         //we check every pos_sol for that tile
         for(short i = 0; i<guesses.size(); i++){
             FillIn fill_in = FillIn(best_tile_coords.first, best_tile_coords.second, guesses[i]);
@@ -169,7 +198,7 @@ public:
 
             Sudoku guessed_board = *this;
             guessed_board.fill_tile(fill_in);
-            SolveReturnType solve_msg = guessed_board.solve(steps);
+            SolveReturnType solve_msg = guessed_board.solve(steps, random);
             steps = solve_msg.steps;
             
             if(solve_msg.solvable){//if the board can be solved with this guess
@@ -425,10 +454,6 @@ public:
         }
         return state_string;
     }
-
-    void generate_solved_board(){
-        
-    }
     
     //returns a FillIn object representing a correct solution to a (semi) random tile. returns nullptr if the board is unsolvable
     FillIn hint(){
@@ -440,17 +465,43 @@ public:
         }      
         
         Sudoku tmp_sudoku = *this;
-        tmp_sudoku.solve();
+        tmp_sudoku.solve(vector<Step>(0));
+        
+        std::mt19937 rng(std::random_device{}());
+        vector<short> random_order_rows, random_order_cols;
+        for(int i = 0; i<this->size_2; i++){
+            random_order_cols.push_back(i);
+            random_order_rows.push_back(i);
+        }
+        std::shuffle(random_order_cols.begin(), random_order_cols.end(), rng);
+        std::shuffle(random_order_rows.begin(), random_order_rows.end(), rng);
 
         for(short y = 0; y<this->size_2; y++){
             for(short x = 0; x<this->size_2; x++){
-                if(tmp_sudoku.solved[x][y] != this->solved[x][y]){
-                    return FillIn(x, y, tmp_sudoku.solved[x][y]);
+                if(this->solved[random_order_cols[x]][random_order_rows[y]] == EMPTY_TILE){
+                    return FillIn(random_order_cols[x], random_order_rows[y], tmp_sudoku.solved[random_order_cols[x]][random_order_rows[y]]);
                 }
             }
         }
         return FillIn(NULL_POSITION, NULL_POSITION, EMPTY_TILE);
     }  
 
+    Sudoku generate_problem(int how_many_filled_in){
+        Sudoku tmp;
+        tmp.solve();
 
+        std::mt19937 rng(std::random_device{}());
+        vector<pair<short, short>> random_order_tiles;
+        for(int x = 0; x<this->size_2; x++){
+            for(int y = 0; y<this->size_2; y++){
+                random_order_tiles.push_back({x, y});
+            }
+        }
+        std::shuffle(random_order_tiles.begin(), random_order_tiles.end(), rng);
+        
+        for(int i = 0; i<how_many_filled_in; i++){
+            tmp.solved[random_order_tiles[i].first][random_order_tiles[i].second] = EMPTY_TILE;
+        }
+        return tmp;
+    }
 };

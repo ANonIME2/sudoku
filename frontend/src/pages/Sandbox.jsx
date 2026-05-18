@@ -8,6 +8,9 @@ export default function Main(propos){
     const [state, setState] = React.useState("")
     const [errorMsg, setErrorMsg] = React.useState("");
     const [solveResponse, setSolveResponse] = React.useState({});
+    const [pickedMode, setPickedMode] = React.useState(undefined);
+    const difficoultyLevels = [{name: "blank", colour:"gray"}, {name:"easy", colour:"green"}, {name:"medium", colour:"yellow"}, {name:"hard", colour:"red"}]
+
 
     const solve = ()=>{
         setErrorMsg("");
@@ -40,41 +43,74 @@ export default function Main(propos){
         })
         .then(x=>x.text().then(value=>{
             value = JSON.parse(value)
-            
-            if(!value["solvable"]){
-                setErrorMsg("This sudoku cannot be solved!")
-            }
+            setState(value);
+        }));
+    }
 
-            setState(value["state"].replaceAll('"',''));
+    const generateProblem = (difficoulty) =>{
+
+        fetch(`http://localhost:${settings.apiPort}/generate`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"}
+        })
+        .then(x=>x.text().then(value=>{
+            value = JSON.parse(value)
+            setState(value);
         }));
     }
 
     function render(){        
         return (
             <>
-                <p className="sudoku_error_msg" style={{opacity: errorMsg == ""? "0%": "100%"}}>{errorMsg}</p>
-                <div className="sudoku_main">
-                    <Sudoku state={state} setState={setState}/>
-                    <textarea 
-                        className="state_input"
-                        autoFocus 
-                        type="text"
-                        value={state}
-                        onInput={(e)=>{
-                            setState(e.target.value);
-                        }}
-                        style={{"position":"absolute", "left":"10px"}}
-                    />
+                {pickedMode == undefined ? 
+                    <>
+                        <div className="mode-btn-container">
+                            {
+                                difficoultyLevels.map((ele, i) => {
+                                    console.log(ele);
+                                    
+                                    return (
+                                        <div 
+                                            style={{backgroundColor:ele.colour}}
+                                            className="mode-btn"
+                                            onClick={()=>{
+                                                setPickedMode(i);
+                                                generateProblem(i);
+                                            }}
+                                        >
+                                            {ele.name}
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                    </> : 
+                    <>
+                    <p className="sudoku_error_msg" style={{opacity: errorMsg == ""? "0%": "100%"}}>{errorMsg}</p>
+                    <div className="sudoku_main">
+                        <Sudoku state={state} setState={setState}/>
+                        <textarea 
+                            className="state_input"
+                            autoFocus 
+                            type="text"
+                            value={state}
+                            onInput={(e)=>{
+                                setState(e.target.value);
+                            }}
+                            style={{"position":"absolute", "left":"10px"}}
+                        />
 
-                    <div style={{display:"flex", flexDirection:"column", gap:"10px"}}>
-                        <button className="btn-big" onClick={solve}>SOLVE</button>
-                        <button className="btn-big" onClick={hint}>HINT</button>
+                        <div style={{display:"flex", flexDirection:"column", gap:"10px"}}>
+                            <button className="btn-big" onClick={solve}>SOLVE</button>
+                            <button className="btn-big" onClick={hint}>HINT</button>
+                        </div>
+
+                        {/* <div className="steps-renderer-container">
+                            <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={solveResponse.steps}/>
+                        </div> */}
                     </div>
-
-                    {/*<div className="steps-renderer-container">
-                        <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={solveResponse.steps}/>
-                    </div>*/}
-                </div>
+                    </>
+                } 
             </>
         )
     }
