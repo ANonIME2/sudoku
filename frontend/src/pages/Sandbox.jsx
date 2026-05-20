@@ -9,8 +9,11 @@ export default function Main(propos){
     const [errorMsg, setErrorMsg] = React.useState("");
     const [solveResponse, setSolveResponse] = React.useState({});
     const [pickedMode, setPickedMode] = React.useState(undefined);
-    const difficoultyLevels = [{name: "blank", colour:"gray"}, {name:"easy", colour:"green"}, {name:"medium", colour:"yellow"}, {name:"hard", colour:"red"}]
-
+    const difficoultyLevels = [
+        {name: "blank", colour:"gray", filledIn:0}, 
+        {name:"easy", colour:"green", filledIn:50}, 
+        {name:"medium", colour:"yellow", filledIn:40}, 
+        {name:"hard", colour:"red", filledIn:30}]
 
     const solve = ()=>{
         setErrorMsg("");
@@ -51,7 +54,10 @@ export default function Main(propos){
 
         fetch(`http://localhost:${settings.apiPort}/generate`,{
             method:"POST",
-            headers:{"Content-Type":"application/json"}
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                difficoulty:difficoultyLevels[difficoulty].filledIn
+            })
         })
         .then(x=>x.text().then(value=>{
             value = JSON.parse(value)
@@ -63,14 +69,15 @@ export default function Main(propos){
         return (
             <>
                 {pickedMode == undefined ? 
-                    <>
+                    <div className="difficoulty-pick-container">
+                        <h2>Pick a difficoulty</h2>
                         <div className="mode-btn-container">
                             {
                                 difficoultyLevels.map((ele, i) => {
                                     console.log(ele);
                                     
                                     return (
-                                        <div 
+                                        <button
                                             style={{backgroundColor:ele.colour}}
                                             className="mode-btn"
                                             onClick={()=>{
@@ -79,12 +86,12 @@ export default function Main(propos){
                                             }}
                                         >
                                             {ele.name}
-                                        </div>
+                                        </button>
                                     )
                                 })
                             }
                         </div>
-                    </> : 
+                    </div> : 
                     <>
                     <p className="sudoku_error_msg" style={{opacity: errorMsg == ""? "0%": "100%"}}>{errorMsg}</p>
                     <div className="sudoku_main">

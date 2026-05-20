@@ -22,10 +22,10 @@ app.post('/solve', (req, res)=>{
 })
 
 
-app.get('/generate-problem', (req, res)=>{
-  execSync(`.\\${ALGORITHMS_FOLDER}\\generator.exe`); 
-  const state = JSON.parse(fs.readFileSync(`.\\${ALGORITHMS_FOLDER}\\${OUTPUT_STATE_FILE}`, {encoding:"utf-8", flag:'r'}));
-  return res.json(state);
+app.post('/generate', (req, res)=>{
+  console.log(req.body.difficoulty);
+  const result = execSync(`.\\${ALGORITHMS_FOLDER}\\generator.exe ${req.body.difficoulty}`).toString();
+  return res.json(result);
 })
 
 app.post('/hint', (req, res)=>{

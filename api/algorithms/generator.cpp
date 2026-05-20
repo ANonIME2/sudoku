@@ -1,7 +1,11 @@
 #include "Sudoku.h"
 
-int main(){
+int main(int argc, char*argv[]){
     Sudoku problem;
-    std::cout<<problem.generate_problem(40).state_string();
+    if(argc == 1){
+        return -1;
+    }
+    
+    std::cout<<problem.generate_problem(problem.size_2 * problem.size_2 - stoi(string(argv[1]))).state_string();
     return 0;
 }
