@@ -6,6 +6,7 @@ import testSteps from './testSteps';
 import Stack from './Stack';
 import testPreSolvedState from './testPreSolvedState';
 import SudokuStep from './Step';
+import { useEffect } from 'react';
 
 
 class Step{
@@ -22,6 +23,8 @@ class Step{
 export default function StepsRenderer(props) {
   const steps = props.steps == undefined ? [] : props.steps;
   const preSolvedState = props.preSolvedState == undefined ? "" : props.preSolvedState
+  const [nodes, setNodes] = useState(undefined);
+  const [edges, setEdges] = useState(undefined);
   // const steps = testSteps;
   // const preSolvedState = testPreSolvedState;
   console.log(steps);
@@ -79,7 +82,7 @@ export default function StepsRenderer(props) {
     initialNodes.push({
       id: String(i),
       type:'sudokuStep',
-      position: {x: 10 * currentXDepth, y: 10 * currentYDepth},
+      position: {x: 650 * currentXDepth, y: 650 * currentYDepth},
       data: {
         title: ele.step.msg + ele.step.fillIns,
         state: ele.state
@@ -98,14 +101,18 @@ export default function StepsRenderer(props) {
   });
 
   graph.forEach(ele => {
-    console.log(`x: ${ele.XDepth} y: ${ele.YDepth}`);
+    console.log(`x: ${ele.XDepth}y: ${ele.YDepth}`);
   });
-
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
+  
   const nodeTypes = {
     sudokuStep: SudokuStep
   }
+
+  useEffect(()=>{
+    setEdges(initialEdges);
+    setNodes(initialNodes);
+
+  }, [props.preSolvedState, props.steps])
 
   return (
     <div className='stepsDisplay'>

@@ -66,6 +66,8 @@ export default function Main(propos){
     }
 
     function render(){        
+        console.log(solveResponse);
+        
         return (
             <>
                 {pickedMode == undefined ? 
@@ -112,14 +114,30 @@ export default function Main(propos){
                             <button className="btn-big" onClick={hint}>HINT</button>
                         </div>
 
-                        {/* <div className="steps-renderer-container">
-                            <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={solveResponse.steps}/>
-                        </div> */}
+                        <StepsRendererContainer solveResponse={solveResponse}/>
                     </div>
                     </>
                 } 
             </>
         )
+    }
+    return render();
+}
+
+function StepsRendererContainer(props){    
+    const solveResponse = props.solveResponse
+    const [fullscreen, setFullscreen] = React.useState(true);
+    const toggleStepsFullscreen = ()=>{
+        setFullscreen(!fullscreen)
+    }
+
+    function render(){
+        return (
+            <div className={`steps-renderer-container ${fullscreen ? "fullscreen" : ""}`}>
+                <button onClick={toggleStepsFullscreen}>{fullscreen ? "minimize" : "fullscreen"}</button>
+                <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={solveResponse.steps}/>
+            </div>
+        );
     }
     return render();
 }

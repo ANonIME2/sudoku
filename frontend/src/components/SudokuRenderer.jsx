@@ -207,6 +207,7 @@ export default function Sudoku(props) {
           }
 
           return (
+            
             <input
               onChange={(e) => { updateState(x, y, e) }}
               maxLength={1}
