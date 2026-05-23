@@ -236,7 +236,7 @@ public:
     }
 
     void update_pos_sol(short solution){
-         //we walk through all the tiles and if we find a solved one we delete that possible solution from it's row, column and square
+        //we walk through all the tiles and if we find a solved one we delete that possible solution from it's row, column and square
         for(short x = 0; x<this->size_2; x++){
             for(short y = 0; y<this->size_2; y++){
                 if(solved[x][y] == solution){

@@ -20,6 +20,13 @@ export default function Sudoku(props) {
   //stores all the tiles that have solutions colliding with other tiles (when there is the same solution in the same row or column or square) in the format [{x, y}, {x, y}...]
   const [errorTilesArray, setErrorsArray] = React.useState([])
 
+  function what_square(x, y){
+    let square = 0;
+    square += Math.floor(x / BOARD_SIZE);
+    square += Math.floor((y / BOARD_SIZE))*BOARD_SIZE;
+    return square;
+  }
+  
   function tiles_of_square(square) {
     let tiles = [];
     for (let y = Math.floor(square / BOARD_SIZE) * BOARD_SIZE; y < Math.floor(square / BOARD_SIZE) * BOARD_SIZE + BOARD_SIZE; y++) {
@@ -151,10 +158,52 @@ export default function Sudoku(props) {
       }
     }
 
+    //all possible solutions false
+    let posSolutions = [];
+    for(let x = 0; x<BOARD_SIZE_2; x++){
+      let newColumn = [];
+      for(let y = 0; y<BOARD_SIZE_2; y++){
+        let newTile = [];
+        for(let solution = 0; solution< BOARD_SIZE_2; solution++){
+          newTile.push(true);
+        }
+        newColumn.push(newTile)
+      }
+      posSolutions.push(newColumn)
+    }
 
+    for(let x = 0; x<BOARD_SIZE_2; x++){
+      for(let y = 0; y<BOARD_SIZE_2; y++){
+        const solution = newStateMatrix[x][y] - 1;
+        if(solution == undefined || solution == -1) continue
+        //row and column
+        for(let i = 0; i<BOARD_SIZE_2; i++){
+          posSolutions[x][i][solution] = false;
+          posSolutions[i][y][solution] = false;
+        }
+        //square
+        const squareTiles = tiles_of_square(what_square(x, y));
+        squareTiles.forEach(ele => {
+          posSolutions[ele.x][ele.y][solution] = false;
+        });
+      }
+    }
+    
+    for(let x = 0; x<BOARD_SIZE_2; x++){
+      for(let y = 0; y<BOARD_SIZE_2; y++){
+        if(newStateMatrix[x][y]){continue}
+        let isCorrect = false;
+        for(let sol = 0; sol<BOARD_SIZE_2; sol++){
+          isCorrect = isCorrect || posSolutions[x][y][sol]; 
+        }
+
+        if(!isCorrect) newErrorsArray.push({x: x, y:y});
+      }
+    }
+    console.log(newStateMatrix);
+    
     setStateMatrix(newStateMatrix)
     setErrorsArray(newErrorsArray)
-
   }, [state])
 
   function updateState(x, y, event) {

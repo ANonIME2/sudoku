@@ -70,7 +70,7 @@ export default function StepsRenderer(props) {
       currentYDepth += 1;
     }else if(ele.step.msg == "cancel guess"){
       
-      currentXDepth = graph[ele.parent].XDepth + 1;
+      currentXDepth = graph[ele.parent].XDepth;
       // yDepth += 1; 
       return;
     }
