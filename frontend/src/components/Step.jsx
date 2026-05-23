@@ -20,7 +20,7 @@ export default function SudokuStep({data}){
           id={`${data.id}-target`}
         />
         <p className="sudokuStepTitle">{data.title}</p>
-        <Sudoku state={state} setState={setState} disabled={true}/>
+        <Sudoku state={state} setState={setState} disabled={true} highlights={data.fillIns}/>
       </div>
     )
   }

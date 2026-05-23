@@ -11,6 +11,7 @@ export default function Sudoku(props) {
   const disabled = props.disabled == undefined ? false : props.disabled;
   let stateArray = [];
   let state = props.state;
+  const highlights = props.highlights ? props.highlights.trim().split(" ") : [];
   if(state[state.length-1] != ' '){
     state += " ";
   }
@@ -18,7 +19,6 @@ export default function Sudoku(props) {
   const [stateMatrix, setStateMatrix] = React.useState([]);
   //stores all the tiles that have solutions colliding with other tiles (when there is the same solution in the same row or column or square) in the format [{x, y}, {x, y}...]
   const [errorTilesArray, setErrorsArray] = React.useState([])
-
 
   function tiles_of_square(square) {
     let tiles = [];
@@ -58,11 +58,24 @@ export default function Sudoku(props) {
   }, [])
 
   React.useEffect(() => {
+    let stateSet = new Set();
     stateArray = state.trim().split(" ");
     stateArray = stateArray.slice(0, stateArray.length - stateArray.length % 3);
-
     let newStateMatrix = [];
-    let newErrorsArray = []
+    let newErrorsArray = [];
+
+    for(let i = 0; i<stateArray.length; i+=3){
+      stateSet.add([stateArray[i], stateArray[i+1], stateArray[i+2]]);
+    }
+    stateArray = [];
+    console.log(stateSet);
+    
+    stateSet.forEach(ele => {
+      stateArray = stateArray.concat(ele);
+    });
+
+    setState(stateArray.join(" "))
+
     for (let y = 0; y < BOARD_SIZE_2; y++) {
       let tmp = [];
       for (let x = 0; x < BOARD_SIZE_2; x++) {
@@ -146,11 +159,11 @@ export default function Sudoku(props) {
   }, [state])
 
   function updateState(x, y, event) {
+    console.log(x,y,event.target.value)
     if (isNaN(Number(event.target.value)) || '0' == event.target.value) {
       event.target.value = '';
       return;
     }
-
 
     let newState = '';
     const tiles = document.querySelectorAll(".tile");
@@ -162,7 +175,6 @@ export default function Sudoku(props) {
     }
 
     setState(newState)
-
   }
 
   //returns a string representing the class names needed for a specified tile. 
@@ -198,6 +210,21 @@ export default function Sudoku(props) {
   }
 
   function render() {
+    let highlightsMatrix = [];
+
+    for(let i = 0; i<BOARD_SIZE_2; i++){
+      let newColumn = []
+      for(let j = 0; j<BOARD_SIZE_2; j++){
+        newColumn.push(false);
+      }
+      highlightsMatrix.push(newColumn);
+    }
+
+    for(let i = 0; i<highlights.length; i+=3){
+      const x = highlights[i], y = highlights[i+1];
+      highlightsMatrix[x][y]= true;
+    }
+
     const tiles = (
       stateMatrix.map((column, y) => {
         return column.map((row, x) => {
@@ -205,9 +232,11 @@ export default function Sudoku(props) {
           if (errorTilesArray.some((ele) => ele.x == x && ele.y == y)) {
             className += " error_tile";
           }
+          if(highlightsMatrix[x][y]){
+            className += " highlighted_tile"
+          }
 
-          return (
-            
+          return (           
             <input
               onChange={(e) => { updateState(x, y, e) }}
               maxLength={1}

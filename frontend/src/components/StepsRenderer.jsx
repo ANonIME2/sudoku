@@ -21,16 +21,12 @@ class Step{
 }
 
 export default function StepsRenderer(props) {
-  const steps = props.steps == undefined ? [] : props.steps;
   const preSolvedState = props.preSolvedState == undefined ? "" : props.preSolvedState
+  const steps = props.steps == undefined ? [] : [{fillIns: preSolvedState, msg:"start"}].concat(props.steps);
   const [nodes, setNodes] = useState(undefined);
   const [edges, setEdges] = useState(undefined);
-  // const steps = testSteps;
-  // const preSolvedState = testPreSolvedState;
-  console.log(steps);
-  console.log(preSolvedState);
   
-  
+
   let graph = [];
   let initialEdges = [];
 
@@ -46,7 +42,7 @@ export default function StepsRenderer(props) {
       parent = goBacks.pop();
     }
     
-    let state = i - 1 < 0 ? preSolvedState : graph[parent].state + steps[i].fillIns;
+    let state = i - 1 < 0 ? preSolvedState + steps[i].fillIns: graph[parent].state + steps[i].fillIns;
 
     let newNode = new Step(steps[i], state, parent, []); 
     graph.push(newNode);
@@ -61,10 +57,14 @@ export default function StepsRenderer(props) {
     }
   }
 
+  console.log("graph")
+  console.log(graph);
+
   let initialNodes = [];
   let currentYDepth = 0;
   let currentXDepth = 0;
   let xDepths = []
+
   graph.forEach((ele, i) => {
     currentXDepth += 1;
     if(ele.step.msg == "guess"){
@@ -84,24 +84,23 @@ export default function StepsRenderer(props) {
       type:'sudokuStep',
       position: {x: 650 * currentXDepth, y: 650 * currentYDepth},
       data: {
-        title: ele.step.msg + ele.step.fillIns,
-        state: ele.state
+        title: ele.step.msg,
+        state: ele.state,
+        fillIns: i != 0 ? ele.step.fillIns : ""
       }
     })
 
     ele.children.forEach(child => {
-      initialEdges.push({
-        id: String(i)+"-"+String(child), 
-        source:String(i), 
-        target: String(child),
-        MarkerType: MarkerType.Arrow
-      })
+      if(child != 0){//stops the first node from being it's own child
+        initialEdges.push({
+          id: String(i)+"-"+String(child), 
+          source:String(i), 
+          target: String(child),
+          MarkerType: MarkerType.Arrow
+        })
+      }
     });
     
-  });
-
-  graph.forEach(ele => {
-    console.log(`x: ${ele.XDepth}y: ${ele.YDepth}`);
   });
   
   const nodeTypes = {
@@ -110,8 +109,7 @@ export default function StepsRenderer(props) {
 
   useEffect(()=>{
     setEdges(initialEdges);
-    setNodes(initialNodes);
-
+    setNodes(initialNodes);    
   }, [props.preSolvedState, props.steps])
 
   return (

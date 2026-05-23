@@ -161,16 +161,16 @@ public:
             for(short x = 0; x<this->size_2 && !tile_found; x++){
                 for(short y = 0; y<this->size_2 && !tile_found; y++){
                     if(solved[x][y] == EMPTY_TILE){
-                        vector<short> sols;
+                        best_tile_coords = {x, y};
+                        tile_found = true;
                         for(short sol = 0; sol<this->size_2; sol++){
                             if(pos_sol[x][y][sol]){
-                                sols.push_back(sol);
+                                guesses.push_back(sol);
                             }
                         }
                     }
                 }
             }
-
             std::shuffle(guesses.begin(), guesses.end(), rng);
         }else{
             for(short x = 0; x<this->size_2; x++){
@@ -488,7 +488,7 @@ public:
 
     Sudoku generate_problem(int how_many_filled_in){
         Sudoku tmp;
-        tmp.solve();
+        tmp.solve(vector<Step>(0), true);
 
         std::mt19937 rng(std::random_device{}());
         vector<pair<short, short>> random_order_tiles;

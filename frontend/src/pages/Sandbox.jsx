@@ -65,9 +65,7 @@ export default function Main(propos){
         }));
     }
 
-    function render(){        
-        console.log(solveResponse);
-        
+    function render(){
         return (
             <>
                 {pickedMode == undefined ? 
@@ -76,8 +74,6 @@ export default function Main(propos){
                         <div className="mode-btn-container">
                             {
                                 difficoultyLevels.map((ele, i) => {
-                                    console.log(ele);
-                                    
                                     return (
                                         <button
                                             style={{backgroundColor:ele.colour}}
@@ -126,12 +122,14 @@ export default function Main(propos){
 
 function StepsRendererContainer(props){    
     const solveResponse = props.solveResponse
-    const [fullscreen, setFullscreen] = React.useState(true);
+    const [fullscreen, setFullscreen] = React.useState(false);
     const toggleStepsFullscreen = ()=>{
         setFullscreen(!fullscreen)
     }
 
     function render(){
+        console.log(solveResponse.preSolvedState);
+        
         return (
             <div className={`steps-renderer-container ${fullscreen ? "fullscreen" : ""}`}>
                 <button onClick={toggleStepsFullscreen}>{fullscreen ? "minimize" : "fullscreen"}</button>

@@ -23,7 +23,6 @@ app.post('/solve', (req, res)=>{
 
 
 app.post('/generate', (req, res)=>{
-  console.log(req.body.difficoulty);
   const result = execSync(`.\\${ALGORITHMS_FOLDER}\\generator.exe ${req.body.difficoulty}`).toString();
   return res.json(result);
 })
@@ -32,7 +31,6 @@ app.post('/hint', (req, res)=>{
   let state = req.body.state;
   fs.writeFileSync(INPUT_STATE_FILE_ABS_PATH, state);
   state = JSON.parse(execSync(`.\\${ALGORITHMS_FOLDER}\\hint.exe ${INPUT_STATE_FILE_ABS_PATH}`).toString());
-  console.log(state);
   return res.json(state);
 })
 
