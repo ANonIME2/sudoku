@@ -110,10 +110,10 @@ body{
     border-right-width: var(--wide-border);
 }
 
+.highlighted_tile{
+    background-color: rgb(98, 212, 98);
+}
 .error_tile{
     background-color: rgb(216, 107, 107);
 }
 
-.highlighted_tile{
-    background-color: rgb(98, 212, 98);
-}

@@ -122,18 +122,19 @@ export default function Main(propos){
 
 function StepsRendererContainer(props){    
     const solveResponse = props.solveResponse
+    let steps = props.solveResponse.steps ? props.solveResponse.steps : [];
     const [fullscreen, setFullscreen] = React.useState(false);
+
+    
     const toggleStepsFullscreen = ()=>{
         setFullscreen(!fullscreen)
     }
 
     function render(){
-        console.log(solveResponse.preSolvedState);
-        
         return (
             <div className={`steps-renderer-container ${fullscreen ? "fullscreen" : ""}`}>
                 <button onClick={toggleStepsFullscreen}>{fullscreen ? "minimize" : "fullscreen"}</button>
-                <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={solveResponse.steps}/>
+                <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={steps}/>
             </div>
         );
     }

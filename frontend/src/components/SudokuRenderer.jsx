@@ -68,7 +68,6 @@ export default function Sudoku(props) {
       stateSet.add([stateArray[i], stateArray[i+1], stateArray[i+2]]);
     }
     stateArray = [];
-    console.log(stateSet);
     
     stateSet.forEach(ele => {
       stateArray = stateArray.concat(ele);
@@ -159,7 +158,6 @@ export default function Sudoku(props) {
   }, [state])
 
   function updateState(x, y, event) {
-    console.log(x,y,event.target.value)
     if (isNaN(Number(event.target.value)) || '0' == event.target.value) {
       event.target.value = '';
       return;
@@ -229,11 +227,11 @@ export default function Sudoku(props) {
       stateMatrix.map((column, y) => {
         return column.map((row, x) => {
           let className = `tile${wideBorders(x, y)}`;
-          if (errorTilesArray.some((ele) => ele.x == x && ele.y == y)) {
-            className += " error_tile";
-          }
           if(highlightsMatrix[x][y]){
             className += " highlighted_tile"
+          }
+          if (errorTilesArray.some((ele) => ele.x == x && ele.y == y)) {
+            className += " error_tile";
           }
 
           return (           
@@ -254,7 +252,7 @@ export default function Sudoku(props) {
 
     return (
 
-      <div className="sudoku_board">
+      <div className="sudoku_board" style={props.style}>
         {
           tiles
         }

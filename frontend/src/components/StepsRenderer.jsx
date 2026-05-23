@@ -22,7 +22,7 @@ class Step{
 
 export default function StepsRenderer(props) {
   const preSolvedState = props.preSolvedState == undefined ? "" : props.preSolvedState
-  const steps = props.steps == undefined ? [] : [{fillIns: preSolvedState, msg:"start"}].concat(props.steps);
+  const steps = props.steps == undefined ? [] : props.steps;
   const [nodes, setNodes] = useState(undefined);
   const [edges, setEdges] = useState(undefined);
   
@@ -57,8 +57,7 @@ export default function StepsRenderer(props) {
     }
   }
 
-  console.log("graph")
-  console.log(graph);
+
 
   let initialNodes = [];
   let currentYDepth = 0;
@@ -67,7 +66,7 @@ export default function StepsRenderer(props) {
 
   graph.forEach((ele, i) => {
     currentXDepth += 1;
-    if(ele.step.msg == "guess"){
+    if(ele.step.msg == "guess" && graph[i-1].step.msg == "cancel guess"){
       currentYDepth += 1;
     }else if(ele.step.msg == "cancel guess"){
       
@@ -82,11 +81,11 @@ export default function StepsRenderer(props) {
     initialNodes.push({
       id: String(i),
       type:'sudokuStep',
-      position: {x: 650 * currentXDepth, y: 650 * currentYDepth},
+      position: {x: 450 * currentXDepth, y: 550 * currentYDepth},
       data: {
         title: ele.step.msg,
         state: ele.state,
-        fillIns: i != 0 ? ele.step.fillIns : ""
+        fillIns: ele.step.fillIns
       }
     })
 
