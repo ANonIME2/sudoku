@@ -9,7 +9,7 @@ export default function Main(propos){
     const [errorMsg, setErrorMsg] = React.useState("");
     const [solveResponse, setSolveResponse] = React.useState({});
     const [pickedMode, setPickedMode] = React.useState(undefined);
-    const [disabledTiles, setDisabledTiles] = useState([])
+    const [disabledTiles, setDisabledTiles] = useState("")
     const difficoultyLevels = [
         {name: "blank", colour:"gray", filledIn:0}, 
         {name:"easy", colour:"green", filledIn:50}, 
@@ -60,14 +60,8 @@ export default function Main(propos){
             })
         })
         .then(x=>x.text().then(newState=>{
-            newState = JSON.parse(newState)
-            
-            let newStateArray = newState.split(" ");``
-            let newDisabledTiles = []
-            for(let i = 0; i<newStateArray.length; i+=3){                
-                newDisabledTiles.push({x:newStateArray[i], y:newStateArray[i+1]})
-            }
-            setDisabledTiles(newDisabledTiles);
+            newState = JSON.parse(newState);
+            setDisabledTiles(newState);
             setState(newState);
         }));
     }
@@ -96,11 +90,12 @@ export default function Main(propos){
                                 })
                             }
                         </div>
-                    </div> : 
+                    </div> 
+                    : 
                     <>
                     <p className="sudoku_error_msg" style={{opacity: errorMsg == ""? "0%": "100%"}}>{errorMsg}</p>
                     <div className="sudoku_main">
-                        <Sudoku state={state} setState={setState}/>
+                        <Sudoku state={state} setState={setState} disabledTiles={disabledTiles}/>
                         <textarea 
                             className="state_input"
                             autoFocus 

@@ -26,7 +26,6 @@ export default function StepsRenderer(props) {
   const [nodes, setNodes] = useState(undefined);
   const [edges, setEdges] = useState(undefined);
   
-
   let graph = [];
   let initialEdges = [];
 
@@ -64,7 +63,7 @@ export default function StepsRenderer(props) {
 
   graph.forEach((ele, i) => {
     currentXDepth += 1;
-    if(ele.step.msg == "guess" && graph[i-1].step.msg == "cancel guess"){
+    if(ele.step.msg == "guess" && i>0 && graph[i-1].step.msg == "cancel guess"){
       currentYDepth += 1;
     }else if(ele.step.msg == "cancel guess"){    
       currentXDepth = graph[ele.parent].XDepth;
@@ -106,7 +105,8 @@ export default function StepsRenderer(props) {
     setEdges(initialEdges);
     setNodes(initialNodes);    
   }, [props.preSolvedState, props.steps])
-
+  console.log(preSolvedState);
+  
   return (
     <div className='stepsDisplay'>
       <ReactFlow

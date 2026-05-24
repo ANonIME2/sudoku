@@ -8,10 +8,11 @@ export default function Sudoku(props) {
   const BOARD_SIZE = 3;
   const BOARD_SIZE_2 = BOARD_SIZE * BOARD_SIZE;
   const setState = props.setState;
-  const disabled = props.disabled == undefined ? false : props.disabled;
+  const allDisabled = props.allDisabled == undefined ? false : props.allDisabled;
   let stateArray = [];
   let state = props.state;
   const highlights = props.highlights ? props.highlights.trim().split(" ") : [];
+  const disabledTiles = props.disabledTiles ? props.disabledTiles.trim().split(" ") : [];
   const containerRef = React.useRef(null);
   if(state[state.length-1] != ' '){
     state += " ";
@@ -274,13 +275,17 @@ export default function Sudoku(props) {
 
   function render() {
     let highlightsMatrix = [];
+    let disabledTilesMatrix = [];
 
     for(let i = 0; i<BOARD_SIZE_2; i++){
-      let newColumn = []
+      let newColumn1 = []
+      let newColumn2 = []
       for(let j = 0; j<BOARD_SIZE_2; j++){
-        newColumn.push(false);
+        newColumn1.push(false);
+        newColumn2.push(false);
       }
-      highlightsMatrix.push(newColumn);
+      highlightsMatrix.push(newColumn1);
+      disabledTilesMatrix.push(newColumn2);
     }
 
     for(let i = 0; i<highlights.length; i+=3){
@@ -288,6 +293,11 @@ export default function Sudoku(props) {
       highlightsMatrix[x][y]= true;
     }
 
+    for(let i = 0; i<disabledTiles.length; i+=3){
+      const x = disabledTiles[i], y = disabledTiles[i+1];
+      disabledTilesMatrix[x][y]= true;
+    }
+    
     const tiles = (
       stateMatrix.map((column, y) => {
         return column.map((row, x) => {
@@ -297,6 +307,9 @@ export default function Sudoku(props) {
           }
           if (errorTilesArray.some((ele) => ele.x == x && ele.y == y)) {
             className += " error_tile";
+          }
+          if (disabledTilesMatrix[x][y]) {
+            className += " disabled_tile";
           }
 
           return (           
@@ -308,7 +321,7 @@ export default function Sudoku(props) {
               x={x}
               y={y}
               key={String(x) + String(y)}
-              disabled={disabled}
+              disabled={allDisabled || disabledTilesMatrix[x][y]}
             />
           )
         })
