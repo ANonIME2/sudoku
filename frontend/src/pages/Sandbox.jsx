@@ -61,24 +61,18 @@ export default function Main(propos){
         })
         .then(x=>x.text().then(newState=>{
             newState = JSON.parse(newState)
-            console.log("newState");
-            console.log(newState);
             
-            
+            let newStateArray = newState.split(" ");``
             let newDisabledTiles = []
-            for(let i = 0; i<newState.length; i+=3){
-                newDisabledTiles.push({x:newState[i], y:newState[i+1]})
+            for(let i = 0; i<newStateArray.length; i+=3){                
+                newDisabledTiles.push({x:newStateArray[i], y:newStateArray[i+1]})
             }
             setDisabledTiles(newDisabledTiles);
             setState(newState);
         }));
     }
 
-    function render(){
-        console.log("disabled tiles");
-        
-        console.log(disabledTiles);
-        
+    function render(){        
         return (
             <>
                 {pickedMode == undefined ? 

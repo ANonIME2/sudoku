@@ -12,6 +12,7 @@ export default function Sudoku(props) {
   let stateArray = [];
   let state = props.state;
   const highlights = props.highlights ? props.highlights.trim().split(" ") : [];
+  const containerRef = React.useRef(null);
   if(state[state.length-1] != ' '){
     state += " ";
   }
@@ -41,8 +42,13 @@ export default function Sudoku(props) {
     document.addEventListener("keydown", (e) => {
       if (!document.activeElement.classList.contains("tile")) return;
       function changeFocus(diff) {
+        const tiles = containerRef.current.querySelectorAll('.tile');
         const focused = document.activeElement;
-        const tiles = document.querySelectorAll(".tile");
+        
+        if(!Array.from(tiles).includes(focused)){
+          return;
+        }
+        
         let new_focused_id = null;
         tiles.forEach((e, i) => {
           if (e == focused) new_focused_id = i + diff;
@@ -61,6 +67,7 @@ export default function Sudoku(props) {
       } else if (e.key == "ArrowRight") {
         changeFocus(1)
       }
+    
     })
   }, [])
 
@@ -149,8 +156,6 @@ export default function Sudoku(props) {
         }
       });
 
-
-
       for (let solution = 0; solution < BOARD_SIZE_2; solution++) {
         if (solutionAccurances[solution].length > 1) {//is there a collision?
           newErrorsArray = newErrorsArray.concat(solutionAccurances[solution])
@@ -200,14 +205,12 @@ export default function Sudoku(props) {
         if(!isCorrect) newErrorsArray.push({x: x, y:y});
       }
     }
-    console.log(newStateMatrix);
-    
     setStateMatrix(newStateMatrix)
     setErrorsArray(newErrorsArray)
   }, [state])
 
   function updateState(x, y, event) {
-    const newSolution = event.target.value;
+    let newSolution = event.target.value;
     
     if (isNaN(Number(newSolution)) || '0' == newSolution) {
       event.target.value = '';
@@ -218,27 +221,22 @@ export default function Sudoku(props) {
     let filledIn = false;
     for(let i = 0; i<newStateArray.length; i+= 3){
       const xi = newStateArray[i], yi=newStateArray[i+1];
-      console.log(newSolution, xi, yi);
+
       if(xi == x && yi == y){
         filledIn = true;
         if(newSolution == ""){
           newStateArray = newStateArray.slice(0, i).concat(newStateArray.slice(i+3, newStateArray.length));
         }else{
-          newStateArray[i+2] = newSolution;
+          newStateArray[i+2] = newSolution - 1;
         }
       }
     }
-    console.log(filledIn);
     
     if(!filledIn){
-      newStateArray = newStateArray.concat([x, y, newSolution]);
+      newStateArray = newStateArray.concat([x, y, newSolution - 1]);
     }
-    console.log(newStateArray);
-    
-
+  
     const newState = newStateArray.join(" ");
-    console.log(newStateArray);
-    
     setState(newState)
   }
 
@@ -319,7 +317,7 @@ export default function Sudoku(props) {
 
     return (
 
-      <div className="sudoku_board" style={props.style}>
+      <div className="sudoku_board" style={props.style} ref={containerRef}>
         {
           tiles
         }
