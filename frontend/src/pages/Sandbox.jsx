@@ -1,7 +1,7 @@
 import "../styles/Sandbox.css"
 import StepsRenderer from "../components/StepsRenderer.jsx";
 import settings from "../../../settings.js"
-import React from "react";
+import React, { useState } from "react";
 import Sudoku from "../components/SudokuRenderer";
 
 export default function Main(propos){
@@ -9,6 +9,7 @@ export default function Main(propos){
     const [errorMsg, setErrorMsg] = React.useState("");
     const [solveResponse, setSolveResponse] = React.useState({});
     const [pickedMode, setPickedMode] = React.useState(undefined);
+    const [disabledTiles, setDisabledTiles] = useState([])
     const difficoultyLevels = [
         {name: "blank", colour:"gray", filledIn:0}, 
         {name:"easy", colour:"green", filledIn:50}, 
@@ -51,7 +52,6 @@ export default function Main(propos){
     }
 
     const generateProblem = (difficoulty) =>{
-
         fetch(`http://localhost:${settings.apiPort}/generate`,{
             method:"POST",
             headers:{"Content-Type":"application/json"},
@@ -59,13 +59,26 @@ export default function Main(propos){
                 difficoulty:difficoultyLevels[difficoulty].filledIn
             })
         })
-        .then(x=>x.text().then(value=>{
-            value = JSON.parse(value)
-            setState(value);
+        .then(x=>x.text().then(newState=>{
+            newState = JSON.parse(newState)
+            console.log("newState");
+            console.log(newState);
+            
+            
+            let newDisabledTiles = []
+            for(let i = 0; i<newState.length; i+=3){
+                newDisabledTiles.push({x:newState[i], y:newState[i+1]})
+            }
+            setDisabledTiles(newDisabledTiles);
+            setState(newState);
         }));
     }
 
     function render(){
+        console.log("disabled tiles");
+        
+        console.log(disabledTiles);
+        
         return (
             <>
                 {pickedMode == undefined ? 

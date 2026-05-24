@@ -207,20 +207,38 @@ export default function Sudoku(props) {
   }, [state])
 
   function updateState(x, y, event) {
-    if (isNaN(Number(event.target.value)) || '0' == event.target.value) {
+    const newSolution = event.target.value;
+    
+    if (isNaN(Number(newSolution)) || '0' == newSolution) {
       event.target.value = '';
       return;
     }
-
-    let newState = '';
-    const tiles = document.querySelectorAll(".tile");
-
-    for (let i = 0; i < tiles.length; i++) {
-      if (tiles[i].value != "") {
-        newState += `${tiles[i].getAttribute('x')} ${tiles[i].getAttribute('y')} ${tiles[i].value - 1} `;
+    
+    let newStateArray = state.trim().split(" ");
+    let filledIn = false;
+    for(let i = 0; i<newStateArray.length; i+= 3){
+      const xi = newStateArray[i], yi=newStateArray[i+1];
+      console.log(newSolution, xi, yi);
+      if(xi == x && yi == y){
+        filledIn = true;
+        if(newSolution == ""){
+          newStateArray = newStateArray.slice(0, i).concat(newStateArray.slice(i+3, newStateArray.length));
+        }else{
+          newStateArray[i+2] = newSolution;
+        }
       }
     }
+    console.log(filledIn);
+    
+    if(!filledIn){
+      newStateArray = newStateArray.concat([x, y, newSolution]);
+    }
+    console.log(newStateArray);
+    
 
+    const newState = newStateArray.join(" ");
+    console.log(newStateArray);
+    
     setState(newState)
   }
 

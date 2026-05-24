@@ -57,8 +57,6 @@ export default function StepsRenderer(props) {
     }
   }
 
-
-
   let initialNodes = [];
   let currentYDepth = 0;
   let currentXDepth = 0;
@@ -68,10 +66,8 @@ export default function StepsRenderer(props) {
     currentXDepth += 1;
     if(ele.step.msg == "guess" && graph[i-1].step.msg == "cancel guess"){
       currentYDepth += 1;
-    }else if(ele.step.msg == "cancel guess"){
-      
+    }else if(ele.step.msg == "cancel guess"){    
       currentXDepth = graph[ele.parent].XDepth;
-      // yDepth += 1; 
       return;
     }
 

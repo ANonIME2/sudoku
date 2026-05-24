@@ -36,6 +36,10 @@ body{
     outline: none;
 }
 
+.uneditable_tile{
+    font-weight: bolder;
+}
+
 .sudoku_error_msg{
     width: 500px;
     height: 50px;
@@ -51,11 +55,11 @@ body{
 }
 
 .state_input{
-    width: 200px;
+    width: 400px;
     background-color: #555;
     color: var(--bright);
     display: inline;
-    height: 200px;
+    height: 600px;
 }
 
 .sudoku_main{
