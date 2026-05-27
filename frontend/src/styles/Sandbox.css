@@ -20,6 +20,8 @@
 
 .mode-btn{
   padding: 8px;
+  font-size: 1.4rem;
+  font-weight: bold;
 }
 
 button{
@@ -33,4 +35,7 @@ button{
   left: 0;
   top: 0;
   background-color: #201c2e;;
+}
+.fullscreen_button{
+  padding: 4px;
 }

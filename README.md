@@ -1,11 +1,15 @@
 # Sudoku solver and generator
 That's about it.
 
+# Wroks on
+- windows 11 and prolly 10
+
 # How to install and run
 1. download the repo
 2. run `npm install` in `/api` and then do the same in `/frontend`
-3. to run the project, run `node .` in `/api` and `npm run dev` in `/frontend`
-4. realise that the author of this repo forgor to tell you that you have to compile the c++ scripts
-5. compile `solver.cpp` to `solver.exe` and `hint.cpp` to `hint.exe` (idealy with g++ because i have not tested it with other compilers)
-6. run it again
-7. pray
+3. compile the c++ scripts. in /api/algorithms run:
+  - g++ solver.cpp -o solver.exe
+  - g++ generator.cpp -o generator.exe
+  - g++ hint.cpp -o hint.exe
+  if you have some other compiler than g++, then figure the compiling out on your own. i don't actually know if it's going to work but it prolly will :D
+4. to run the project, run `node .` in `/api` and in a seperate terminal, run `npm run dev` in `/frontend

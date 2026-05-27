@@ -4,8 +4,7 @@ export default function Layout(){
     return (
       <div id="layout">
           <nav>
-              <a href="/">play</a> |
-              <a href="/sandbox">sandbox</a> 
+              <a href="/">Sudoku solver</a> 
           </nav>
           <main>
             <Outlet/>

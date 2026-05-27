@@ -66,7 +66,7 @@ export default function Main(propos){
         }));
     }
 
-    function render(){        
+    function render(){
         return (
             <>
                 {pickedMode == undefined ? 
@@ -96,7 +96,7 @@ export default function Main(propos){
                     <p className="sudoku_error_msg" style={{opacity: errorMsg == ""? "0%": "100%"}}>{errorMsg}</p>
                     <div className="sudoku_main">
                         <Sudoku state={state} setState={setState} disabledTiles={disabledTiles}/>
-                        <textarea 
+                        {/* <textarea 
                             className="state_input"
                             autoFocus 
                             type="text"
@@ -105,14 +105,15 @@ export default function Main(propos){
                                 setState(e.target.value);
                             }}
                             style={{"position":"absolute", "left":"10px"}}
-                        />
+                        /> */}
 
                         <div style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                             <button className="btn-big" onClick={solve}>SOLVE</button>
                             <button className="btn-big" onClick={hint}>HINT</button>
                         </div>
 
-                        <StepsRendererContainer solveResponse={solveResponse}/>
+
+                        {solveResponse.steps ? <StepsRendererContainer solveResponse={solveResponse}/> : <></>}
                     </div>
                     </>
                 } 
@@ -135,7 +136,7 @@ function StepsRendererContainer(props){
     function render(){
         return (
             <div className={`steps-renderer-container ${fullscreen ? "fullscreen" : ""}`}>
-                <button onClick={toggleStepsFullscreen}>{fullscreen ? "minimize" : "fullscreen"}</button>
+                <button className="fullscreen_button" onClick={toggleStepsFullscreen}>{fullscreen ? "minimize" : "fullscreen"}</button>
                 <StepsRenderer preSolvedState={solveResponse.preSolvedState} steps={steps}/>
             </div>
         );
